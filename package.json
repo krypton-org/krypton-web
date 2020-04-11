@@ -1,0 +1,41 @@
+{
+  "name": "@krypton-org/krypton-web",
+  "version": "0.0.0",
+  "description": "Krypton Client for web apps.",
+  "main": "lib/index.js",
+  "devDependencies": {
+    "@types/jest": "^25.2.1",
+    "jest": "^25.3.0",
+    "prettier": "^2.0.4",
+    "ts-jest": "^25.3.1",
+    "tslint": "^6.1.1",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.8.3"
+  },
+  "files": [
+    "lib/**/*"
+  ],
+  "scripts": {
+    "coverage": "jest --config jest.config.json --coverage --forceExit",
+    "test": "jest --config jest.config.json --forceExit",
+    "build": "tsc",
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+    "lint": "tslint -p tsconfig.json",
+    "watch": "tsc-watch",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run lint",
+    "preversion": "npm run lint",
+    "version": "npm run format && git add -A src",
+    "postversion": "git push && git push --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krypton-org/krypton-web.git"
+  },
+  "author": "Krypton",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/krypton-org/krypton-web/issues"
+  },
+  "homepage": "https://github.com/krypton-org/krypton-web#readme"
+}
