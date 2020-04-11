@@ -1,7 +1,7 @@
 export abstract class Query {
     private variables: Object;
 
-    constructor(variables: Object){
+    constructor(variables = {}){
         this.variables = variables;
     }
 

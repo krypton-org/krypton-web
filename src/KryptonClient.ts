@@ -1,19 +1,18 @@
-import { 
-    Query, 
-    RefreshQuery, 
-    LoginQuery, 
-    UpdateQuery, 
-    DeleteQuery, 
-    RegisterQuery 
+import {
+    Query,
+    RefreshQuery,
+    LoginQuery,
+    UpdateQuery,
+    DeleteQuery,
+    RegisterQuery
 } from './Queries'
-import { UnauthorizedError} from './ErrorTypes';
 
 export default class KryptonClient {
     private endpoint: string;
     private token: string;
     private user: Object;
 
-    constructor(endpoint: string){
+    constructor(endpoint: string) {
         this.endpoint = endpoint;
         this.token = '';
         this.user = {};
@@ -23,48 +22,73 @@ export default class KryptonClient {
 
     public getToken = (): string => this.token;
 
-    public getAuthorizationHeader = (): string =>'Bearer '+ this.token;
+    public getAuthorizationHeader = (): string => 'Bearer ' + this.token;
 
-    public refresh = (): void => {
-    //     self.__query(RefreshQuery())
+    public refresh = async (): Promise<void> => {
+        await this.query(new RefreshQuery(), false, true);
     }
 
-    // public register = (fields: Object): void => {
-    //     fields = {"email": email, "password": password, **kwargs}
-    //     self.query(RegisterQuery(fields=fields))
-    // }
-        
-    // public login = (email: string, password: string): void => {
-    //     self.query(LoginQuery(email=email, password=password))
-    // }
+    public register = async (fields: Object): Promise<boolean> => {
+        let data: { register: boolean } = await this.query(new RegisterQuery({ fields }), false);
+        return data.register;
+    }
 
-    // public update = (fields: Object): void => {
-    //     self.query(UpdateQuery(fields=kwargs))
-    // }
+    public login = async (email: string, password: string): Promise<Object> => {
+        await this.query(new LoginQuery({ email, password }), false);
+        return this.user;
+    }
 
-    // public delete = (password): void => {
-    //     self.query(DeleteQuery(password=password))
-    // }
+    public update = async (fields: Object): Promise<Object> => {
+        await this.query(new UpdateQuery({ fields }), true);
+        return this.user;
+    }
 
-    private query = async (q: Query, isAuthTokenRequired: boolean, isAlreadyRefreshed = false): Promise<void> => {
+    public delete = async (password: string): Promise<boolean> => {
+        let data: { deleteMe: boolean } = await this.query(new DeleteQuery({ password }), true);
+        return data.deleteMe;
+    }
+
+    private query = async (q: Query, isAuthTokenRequired: boolean, isRefreshed = false): Promise<any> => {
         const headers: any = {
             'Content-Type': 'application/json',
         };
+
         if (isAuthTokenRequired) {
             headers['Authorization'] = this.getAuthorizationHeader();
         }
-        try {
-            let result = await fetch(this.endpoint, {
-                method: 'POST',
-                headers,
-                body: q.toJsonString()
-            }).then(res => res.json());
-            return result;
-        } catch (err){
-            if (err instanceof UnauthorizedError && !isAlreadyRefreshed){
+
+        const res = await fetch(this.endpoint, {
+            method: 'POST',
+            headers,
+            body: q.toJsonString()
+        }).then(res => res.json());
+
+        if (res.errors) {
+            const errorType = res.errors[0].type;
+            const message = res.errors[0].message;
+            if (errorType === 'UnauthorizedError' && !isRefreshed) {
                 await this.refresh();
                 return await this.query(q, isAuthTokenRequired, true)
+            } else {
+                throw new (<any>window)[errorType](message);
             }
         }
+
+        const data = res.data;
+
+        if (data.login) {
+            this.setUserAndToken(data.login.token);
+        } else if (data.refreshToken) {
+            this.setUserAndToken(data.refreshToken.token);
+        } else if (data.updateMe) {
+            this.setUserAndToken(data.updateMe.token);
+        }
+
+        return data;
+    }
+
+    private setUserAndToken = (token: string): void => {
+        this.token = token;
+        this.user = JSON.parse(window.atob(token.split('.')[1]));
     }
 }
