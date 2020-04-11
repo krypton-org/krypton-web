@@ -1,3 +1,3 @@
-export = function () {
-    console.log('Hello World');
-}
+import KryptonClient from './KryptonClient';
+
+export = KryptonClient;
