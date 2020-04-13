@@ -57,7 +57,6 @@ export default class KryptonClient {
         let data: { deleteMe: boolean } = await this.query(new DeleteQuery({ password }), true);
         return data.deleteMe;
     }
-    /////////////////
 
     public recoverPassword = async (email: string): Promise<boolean> => {
         let data: { register: boolean } = await this.query(new UpdateQuery({ email }), true);
