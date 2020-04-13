@@ -15,42 +15,64 @@ import {
     PublicKeyQuery
 } from './Queries'
 
+import * as KryptonErrors from './ErrorTypes'
+
+interface KryptonClientState {
+    expiryDate?: Date;
+    token?: string;
+    user?: any;
+}
+
 export default class KryptonClient {
     private endpoint: string;
-    private expiryDate: Date;
-    private token: string;
-    private user: Object;
+    private state: KryptonClientState;
 
     constructor(endpoint: string) {
         this.endpoint = endpoint;
-        this.token = '';
-        this.expiryDate = new Date();
-        this.user = {};
+        this.state = {};
     }
 
-    public getUser = (): Object => this.user;
+    public getUser = (): any => this.state.user;
 
-    public getToken = (): string => this.token;
+    public getToken = (): string | undefined => this.state.token;
 
-    public getAuthorizationHeader = (): string => 'Bearer ' + this.token;
+    public getAuthorizationHeader = (): string => 'Bearer ' + this.state.token;
 
     public refreshToken = async (): Promise<void> => {
         await this.query(new RefreshQuery(), false, true);
     }
 
-    public register = async (fields: Object): Promise<boolean> => {
-        let data: { register: boolean } = await this.query(new RegisterQuery({ fields }), false);
+    public isLoggedIn = async (): Promise<boolean> => {
+        const now = new Date();
+        if (this.state.token && this.state.expiryDate && this.state.expiryDate > now) {
+            return true;
+        } else {
+            try {
+                await this.refreshToken();
+            } catch (err) {
+                return false;
+            }
+            return true;
+        }
+    }
+
+    public register = async (email: string, password: string, fields?: any): Promise<boolean> => {
+        let data: { register: boolean } = await this.query(new RegisterQuery({ fields: { email, password, ...fields } }), false);
         return data.register;
     }
 
-    public login = async (email: string, password: string): Promise<Object> => {
+    public login = async (email: string, password: string): Promise<any> => {
         await this.query(new LoginQuery({ email, password }), false);
-        return this.user;
+        return this.state.user;
     }
 
-    public update = async (fields: Object): Promise<Object> => {
+    public logout = async (): Promise<void> => {
+        //await removing session in the back-end
+    }
+
+    public update = async (fields: any): Promise<any> => {
         await this.query(new UpdateQuery({ fields }), true);
-        return this.user;
+        return this.state.user;
     }
 
     public delete = async (password: string): Promise<boolean> => {
@@ -78,7 +100,7 @@ export default class KryptonClient {
         return data.sendVerificationEmail;
     }
 
-    public fetchUserOne = async (filter: Object, requestedFields: [string]) => {
+    public fetchUserOne = async (filter: any, requestedFields: [string]) => {
         let data: { userOne: any } = await this.query(new UserOneQuery({ filter }, requestedFields), true, false);
         return data.userOne;
     }
@@ -88,25 +110,24 @@ export default class KryptonClient {
         return data.userByIds;
     }
 
-    public fetchUserMany = async (filter: Object, requestedFields: [string], limit?: number) => {
+    public fetchUserMany = async (filter: any, requestedFields: [string], limit?: number) => {
         let data: { userMany: any } = await this.query(new UserManyQuery({ filter, limit }, requestedFields), true, false);
         return data.userMany;
     }
 
-    public fetchUserCount = async (filter?: Object): Promise<number> => {
+    public fetchUserCount = async (filter?: any): Promise<number> => {
         const variables: any = {}
-        if (filter){
+        if (filter) {
             variables.filter = filter;
         }
         let data: { userCount: number } = await this.query(new UserCountQuery(variables), true, false);
         return data.userCount;
     }
 
-    public fetchUserWithPagination = async (filter: Object, requestedFields: [string], page: number, perPage: number) => {
+    public fetchUserWithPagination = async (filter: any, requestedFields: [string], page: number, perPage: number) => {
         let data: { userOne: any } = await this.query(new UserPaginationQuery({ filter, page, perPage }, requestedFields), true, false);
         return data.userOne;
     }
-
 
     public publicKey = async (): Promise<string> => {
         let data: { publicKey: string } = await this.query(new PublicKeyQuery(), true, false);
@@ -135,26 +156,38 @@ export default class KryptonClient {
                 await this.refreshToken();
                 return await this.query(q, isAuthTokenRequired, true)
             } else {
-                throw new (<any>window)[errorType](message);
+                throw new (<any>KryptonErrors)[errorType](message);
             }
         }
 
         const data = res.data;
-
+        console.log(data);
         if (data.login) {
-            this.setState(data.login.token, new Date(data.login.expiryDate));
+            this.setState({
+                token: data.login.token,
+                expiryDate: new Date(data.login.expiryDate),
+                user: this.decodeToken(data.login.token)
+            });
         } else if (data.refreshToken) {
-            this.setState(data.refreshToken.token, new Date(data.login.expiryDate));
+            this.setState({
+                token: data.refreshToken.token,
+                expiryDate: new Date(data.refreshToken.expiryDate),
+                user: this.decodeToken(data.refreshToken.token)
+            });
         } else if (data.updateMe) {
-            this.setState(data.updateMe.token, new Date(data.login.expiryDate));
+            this.setState({
+                token: data.updateMe.token,
+                expiryDate: new Date(data.updateMe.expiryDate),
+                user: this.decodeToken(data.updateMe.token)
+            });
         }
 
         return data;
     }
 
-    private setState = (token: string, expiryDate: Date): void => {
-        this.expiryDate = expiryDate;
-        this.token = token;
-        this.user = JSON.parse(window.atob(token.split('.')[1]));
+    private decodeToken = (token: string): any => JSON.parse(window.atob(token.split('.')[1]));
+
+    private setState = (state: KryptonClientState): void => {
+        this.state = state;
     }
 }

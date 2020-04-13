@@ -9,11 +9,8 @@
  * @classdesc Common errors raised by system.
  */
 export default class KryptonError extends Error {
-    public message: string;
-
     constructor(message: string, type?: string) {
-        super();
-        this.message = message;
+        super(message);
     }
 }
 
