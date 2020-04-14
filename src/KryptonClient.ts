@@ -18,9 +18,9 @@ import {
 import * as KryptonErrors from './ErrorTypes'
 
 interface KryptonClientState {
-    expiryDate?: Date;
-    token?: string;
-    user?: any;
+    expiryDate: Date;
+    token: string;
+    user: any;
 }
 
 export default class KryptonClient {
@@ -29,12 +29,16 @@ export default class KryptonClient {
 
     constructor(endpoint: string) {
         this.endpoint = endpoint;
-        this.state = {};
+        this.state = {
+            user: {}, expiryDate: new Date(0), token: ''
+        };
     }
 
     public getUser = (): any => this.state.user;
 
-    public getToken = (): string | undefined => this.state.token;
+    public getToken = (): string => this.state.token;
+
+    public getTokenExpiryDate = (): Date => this.state.expiryDate;
 
     public getAuthorizationHeader = (): string => 'Bearer ' + this.state.token;
 
@@ -96,22 +100,22 @@ export default class KryptonClient {
     }
 
     public sendVerificationEmail = async () => {
-        let data: { sendVerificationEmail: boolean } = await this.query(new SendVerificationEmailQuery(), true, false);
+        let data: { sendVerificationEmail: boolean } = await this.query(new SendVerificationEmailQuery(), true);
         return data.sendVerificationEmail;
     }
 
     public fetchUserOne = async (filter: any, requestedFields: [string]) => {
-        let data: { userOne: any } = await this.query(new UserOneQuery({ filter }, requestedFields), true, false);
+        let data: { userOne: any } = await this.query(new UserOneQuery({ filter }, requestedFields), true);
         return data.userOne;
     }
 
     public fetchUserByIds = async (ids: [string], requestedFields: [string]) => {
-        let data: { userByIds: any } = await this.query(new UserByIdsQuery({ ids }, requestedFields), true, false);
+        let data: { userByIds: any } = await this.query(new UserByIdsQuery({ ids }, requestedFields), true);
         return data.userByIds;
     }
 
     public fetchUserMany = async (filter: any, requestedFields: [string], limit?: number) => {
-        let data: { userMany: any } = await this.query(new UserManyQuery({ filter, limit }, requestedFields), true, false);
+        let data: { userMany: any } = await this.query(new UserManyQuery({ filter, limit }, requestedFields), true);
         return data.userMany;
     }
 
@@ -120,17 +124,17 @@ export default class KryptonClient {
         if (filter) {
             variables.filter = filter;
         }
-        let data: { userCount: number } = await this.query(new UserCountQuery(variables), true, false);
+        let data: { userCount: number } = await this.query(new UserCountQuery(variables), true);
         return data.userCount;
     }
 
     public fetchUserWithPagination = async (filter: any, requestedFields: [string], page: number, perPage: number) => {
-        let data: { userOne: any } = await this.query(new UserPaginationQuery({ filter, page, perPage }, requestedFields), true, false);
+        let data: { userOne: any } = await this.query(new UserPaginationQuery({ filter, page, perPage }, requestedFields), true);
         return data.userOne;
     }
 
     public publicKey = async (): Promise<string> => {
-        let data: { publicKey: string } = await this.query(new PublicKeyQuery(), true, false);
+        let data: { publicKey: string } = await this.query(new PublicKeyQuery(), true);
         return data.publicKey;
     }
 
@@ -161,7 +165,6 @@ export default class KryptonClient {
         }
 
         const data = res.data;
-        console.log(data);
         if (data.login) {
             this.setState({
                 token: data.login.token,

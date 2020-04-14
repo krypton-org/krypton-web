@@ -9,22 +9,18 @@ const exec = promisify(execSync);
 (async () => {
     try{
         await exec('docker rm -f krypton-auth-db-test');
-    } catch (err){
-        console.log(err);
-    }
+    } catch (err){ }
+
 
     try{
         await exec('docker rm -f krypton-auth-test');
 
-    } catch (err){
-        console.log(err);
-    }
+    } catch (err){ }
+
 
     try{
         await exec('docker network rm krypton-auth-net-test');
-    } catch (err){
-        console.log(err);
-    }
+    } catch (err){ }
 
     console.log("Docker cleaned up")
 

@@ -8,20 +8,25 @@ const user = {
 }
 
 beforeAll(async (done) => {
-    const isRegistered = await krypton.register(user.email, user.password);
-    if (!isRegistered) {
-        done(new Error('Can\'t register user'));
+    try {
+        await krypton.register(user.email, user.password);
+    } catch (err) {
+        done(err);
     }
     done();
 })
 
 test('Log-in success', async (done) => {
-    expect(await krypton.isLoggedIn()).toBeFalsy();
-    const loggedUser: any = await krypton.login(user.email, user.password);
-    expect(loggedUser.email).toBe(user.email);
-    expect(loggedUser._id).not.toBeUndefined();
-    expect(loggedUser.verified).toBeFalsy();
-    expect(await krypton.isLoggedIn()).toBeTruthy();
+    try{
+        expect(await krypton.isLoggedIn()).toBeFalsy();
+        const loggedUser: any = await krypton.login(user.email, user.password);
+        expect(loggedUser.email).toBe(user.email);
+        expect(loggedUser._id).not.toBeUndefined();
+        expect(loggedUser.verified).toBeFalsy();
+        expect(await krypton.isLoggedIn()).toBeTruthy();
+    } catch (err) {
+        done(err);
+    }
     done();
 });
 
