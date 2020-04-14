@@ -150,6 +150,7 @@ export default class KryptonClient {
         const res = await fetch(this.endpoint, {
             method: 'POST',
             headers,
+            credentials: 'include',
             body: q.toJsonString()
         }).then(res => res.json());
 
