@@ -89,7 +89,7 @@ export default class KryptonClient {
         return data.register;
     }
 
-    public emailAvailable = async (email: string): Promise<boolean> => {
+    public isEmailAvailable = async (email: string): Promise<boolean> => {
         let data: { emailAvailable: boolean } = await this.query(new EmailAvailableQuery({ email }), false);
         return data.emailAvailable;
     }
