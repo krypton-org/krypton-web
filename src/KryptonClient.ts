@@ -94,9 +94,14 @@ export default class KryptonClient {
         return data.emailAvailable;
     }
 
-    public changePassword = async (password: string, previousPassword: string): Promise<boolean> => {
-        let data: { register: boolean } = await this.query(new UpdateQuery({ password, previousPassword }), true);
-        return data.register;
+    public changePassword = async (actualPassword: string, newPassword: string,): Promise<boolean> => {
+        let data: { updateMe: any } = await this.query(new UpdateQuery(
+            { fields: { 
+                password: newPassword,
+                previousPassword: actualPassword
+            } 
+        }), true);
+        return !!data.updateMe;
     }
 
     public sendVerificationEmail = async () => {
@@ -161,7 +166,11 @@ export default class KryptonClient {
                 await this.refreshToken();
                 return await this.query(q, isAuthTokenRequired, true)
             } else {
-                throw new (<any>KryptonErrors)[errorType](message);
+                if (!(<any>KryptonErrors)[errorType]) {
+                    throw new Error(message);
+                } else {
+                    throw new (<any>KryptonErrors)[errorType](message);
+                }
             }
         }
 
