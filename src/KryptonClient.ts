@@ -110,17 +110,17 @@ export default class KryptonClient {
         return data.sendVerificationEmail;
     }
 
-    public fetchUserOne = async (filter: any, requestedFields: [string]) => {
+    public fetchUserOne = async (filter: any, requestedFields: string[]) => {
         let data: { userOne: any } = await this.query(new UserOneQuery({ filter }, requestedFields), true);
         return data.userOne;
     }
 
-    public fetchUserByIds = async (ids: [string], requestedFields: [string]) => {
+    public fetchUserByIds = async (ids: string[], requestedFields: string[]) => {
         let data: { userByIds: any } = await this.query(new UserByIdsQuery({ ids }, requestedFields), true);
         return data.userByIds;
     }
 
-    public fetchUserMany = async (filter: any, requestedFields: [string], limit?: number) => {
+    public fetchUserMany = async (filter: any, requestedFields: string[], limit?: number) => {
         let data: { userMany: any } = await this.query(new UserManyQuery({ filter, limit }, requestedFields), true);
         return data.userMany;
     }
@@ -134,12 +134,12 @@ export default class KryptonClient {
         return data.userCount;
     }
 
-    public fetchUserWithPagination = async (filter: any, requestedFields: [string], page: number, perPage: number) => {
-        let data: { userOne: any } = await this.query(new UserPaginationQuery({ filter, page, perPage }, requestedFields), true);
-        return data.userOne;
+    public fetchUserWithPagination = async (filter: any, requestedFields: string[], page: number, perPage: number) => {
+        let data: { userPagination: any } = await this.query(new UserPaginationQuery({ filter, page, perPage }, requestedFields), true);
+        return data.userPagination;
     }
 
-    public publicKey = async (): Promise<string> => {
+    public fetchPublicKey = async (): Promise<string> => {
         let data: { publicKey: string } = await this.query(new PublicKeyQuery(), true);
         return data.publicKey;
     }

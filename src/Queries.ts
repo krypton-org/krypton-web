@@ -13,9 +13,9 @@ export abstract class Query {
 }
 
 export abstract class QueryWithRequestedFields extends Query {
-    private requestedFields: [String];
+    protected requestedFields: string[];
 
-    constructor(variables: Object, requestedFields: [string]) {
+    constructor(variables: Object, requestedFields: string[]) {
         super(variables);
         this.requestedFields = requestedFields;
     }
@@ -137,7 +137,7 @@ export class UserByIdsQuery extends QueryWithRequestedFields {
 export class UserManyQuery extends QueryWithRequestedFields {
 
     protected getQuery = (): string => `
-        query userMany($filter: FilterFindManyUserPublicInfoInput!, limit: int) {
+        query userMany($filter: FilterFindManyUserPublicInfoInput!, $limit: Int) {
             userMany(filter: $filter, limit: $limit){
                 ...requestedFields
             }
@@ -165,11 +165,29 @@ export class UserCountQuery extends Query {
 
 export class UserPaginationQuery extends QueryWithRequestedFields {
     protected getQuery = (): string => `
-        query userPagination($filter: FilterFindManyUserPublicInfoInput!, $page: int!, $perPage: int!) {
+        query userPagination($filter: FilterFindManyUserPublicInfoInput!, $page: Int!, $perPage: Int!) {
             userPagination(filter: $filter, page: $page, perPage: $perPage){
                 ...requestedFields
             }
         }
     `;
+
+    protected getRequestedFieldsFragment = (): string => {
+        return `
+            fragment requestedFields on UserPublicInfoPagination {
+                items{
+                    `+this.requestedFields.join(" ")+`
+                }
+                pageInfo{
+                    currentPage
+                    perPage
+                    pageCount
+                    itemCount
+                    hasNextPage
+                    hasPreviousPage
+                }
+            }
+        `
+    }
 }
 
