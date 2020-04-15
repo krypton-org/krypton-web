@@ -7,6 +7,7 @@ import {
     RegisterQuery,
     EmailAvailableQuery,
     SendVerificationEmailQuery,
+    SendPasswordRecoveryQuery,
     UserOneQuery,
     UserByIdsQuery,
     UserManyQuery,
@@ -85,8 +86,8 @@ export default class KryptonClient {
     }
 
     public recoverPassword = async (email: string): Promise<boolean> => {
-        let data: { register: boolean } = await this.query(new UpdateQuery({ email }), true);
-        return data.register;
+        let data: { sendPasswordRecoveryEmail: boolean } = await this.query(new SendPasswordRecoveryQuery({ email }), true);
+        return data.sendPasswordRecoveryEmail;
     }
 
     public isEmailAvailable = async (email: string): Promise<boolean> => {

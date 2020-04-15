@@ -16,7 +16,7 @@ beforeAll(async (done) => {
     done();
 })
 
-it('Update success', async (done) => {
+test('Change password', async (done) => {
     await krypton.login(user.email, user.password);
     expect(await krypton.isLoggedIn()).toBeTruthy();
 
