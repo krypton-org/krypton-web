@@ -6,7 +6,7 @@ export default () => (
             <div className="hero-body">
                 <div className="container">
                     <h1 className="title">
-                        Welcome this Krypton demo app. It is A simple todo list ;)
+                        Welcome this Krypton demo app. It is a simple todo list ;)
                 </h1>
                     <h2 className="subtitle">
                         Register to add your todos!
