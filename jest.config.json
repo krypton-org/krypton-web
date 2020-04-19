@@ -11,6 +11,9 @@
         "json",
         "node"
     ],
+    "testPathIgnorePatterns" : [
+        "<rootDir>/demo/" 
+    ],
     "coveragePathIgnorePatterns": [
         "<rootDir>/test",
         "/node_modules/"

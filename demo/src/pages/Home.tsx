@@ -21,7 +21,7 @@ export default () => {
 
             </p>
                 <p>
-                    Check the github sourcce here.
+                    Check the github source here.
             </p>
             </div>
         </div>

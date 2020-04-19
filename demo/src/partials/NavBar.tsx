@@ -1,7 +1,16 @@
 import React, { Component } from 'react';
-import SignUpModal from './modals/SignUpModal';
-import RecoverPasswordsModal from './modals/RecoverPasswordModal';
-import LoginModal from './modals/LoginModal';
+import SignUpModal from '../modals/SignUpModal';
+import RecoverPasswordsModal from '../modals/RecoverPasswordModal';
+import LoginModal from '../modals/LoginModal';
+import Krypton from '@krypton-org/krypton-web'
+
+interface Props {
+    register: (email: string, password: string) => Promise<void>;
+    login: (email: string, password: string) => Promise<void>;
+    recoverPassword: (email: string, password: string) => Promise<void>;
+    isLoggedIn: boolean;
+    user: {email: string, _id: string, verified: boolean} | null | undefined;
+}
 
 interface State {
     loginModal: boolean;
@@ -9,9 +18,9 @@ interface State {
     recoverPasswordModal: boolean;
 }
 
-export default class NavBar extends Component<{}, State> {
+export default class NavBar extends Component<Props, State> {
 
-    constructor(props: {}) {
+    constructor(props: Props) {
         super(props);
         this.state = {
             loginModal: false,
@@ -24,7 +33,7 @@ export default class NavBar extends Component<{}, State> {
         this.setState({ loginModal: false, recoverPasswordModal: false, signUpModal: true })
     }
 
-    closeModals = (e: React.MouseEvent<Element, MouseEvent>) => {
+    closeModals = (e?: React.MouseEvent<Element, MouseEvent>) => {
         this.setState({ loginModal: false, recoverPasswordModal: false, signUpModal: false })
     }
 
@@ -57,16 +66,31 @@ export default class NavBar extends Component<{}, State> {
                                 <a className="navbar-item">Todos</a>
                             </div>
                             <div className="navbar-end">
-                                <div className="navbar-item">
-                                    <div className="buttons">
-                                        <a className="button is-primary" onClick={this.openSignupModal}>
-                                            <strong>Sign up</strong>
+                                {this.props.isLoggedIn ?
+                                    <div className="navbar-item has-dropdown is-hoverable">
+                                        <a className="navbar-link">
+                                        {this.props.user?.email}
                                         </a>
-                                        <a className="button is-light" onClick={this.openLoginModal}>
-                                            Log in
-                                    </a>
+                                
+                                        <div className="navbar-dropdown">
+                                            <a className="navbar-item">
+                                                Log out
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
+                                    :
+                                    <div className="navbar-item">
+                                        <div className="buttons">
+                                            <a className="button is-primary" onClick={this.openSignupModal}>
+                                                <strong>Sign up</strong>
+                                            </a>
+                                            <a className="button is-light" onClick={this.openLoginModal}>
+                                                Log in
+                                        </a>
+                                        </div>
+                                    </div> 
+                                }
+                                
                             </div>
                         </div>
                     </div>
@@ -75,16 +99,20 @@ export default class NavBar extends Component<{}, State> {
                     isActive={this.state.signUpModal}
                     close={this.closeModals}
                     openloginModal={this.openLoginModal}
+                    register={this.props.register}
                 />
                 <RecoverPasswordsModal
                     isActive={this.state.recoverPasswordModal}
                     close={this.closeModals}
+                    recoverPassword={this.props.recoverPassword}
+
                 />
                 <LoginModal
                     isActive={this.state.loginModal}
                     close={this.closeModals}
                     openRecoverPasswordModalModal={this.openRecoverPasswordModalModal}
                     openSignupModal={this.openSignupModal}
+                    login={this.props.login}
                 />
 
             </div>
