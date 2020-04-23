@@ -3,30 +3,37 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock, faCheck, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { isEmailValid, isPasswordValid } from '../utils/Utils';
 import Form from '../utils/Form'
+import { connect } from "react-redux";
+import { RootState } from '../../redux/Root';
+import { register, removeModalsErrorMessages } from '../../redux/actions/AuthActions';
+import { Dispatch } from "redux";
 
-
-interface Props {
+interface ParentProps {
     isActive: boolean;
     close: (e?: React.MouseEvent<Element, MouseEvent>) => void;
     openloginModal: (e: React.MouseEvent<Element, MouseEvent>) => void;
-    register: (email: string, password: string) => Promise<void>;
 }
 
+interface ReduxProps {
+    isRegisterLoading: boolean;
+    registerError: string | null;
+    dispatch: Dispatch<any>
+}
+
+interface Props extends ParentProps, ReduxProps { }
 
 interface State {
-    error: String | null,
     isEmailValid: boolean;
     isPasswordValid: boolean;
     email: string;
     password: string;
 }
 
-export default class SignUpModal extends Component<Props, State> {
+class SignUpModal extends Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
         this.state = {
-            error: null,
             isEmailValid: false,
             isPasswordValid: false,
             email: '',
@@ -43,20 +50,11 @@ export default class SignUpModal extends Component<Props, State> {
     };
 
     handleSubmit = (event?: React.FormEvent<HTMLButtonElement>): void | undefined => {
-        this.submitAsync()
-    }
-
-    submitAsync = async (): Promise<void> => {
-        try {
-            await this.props.register(this.state.email, this.state.password);
-            this.props.close();
-        } catch (err) {
-            this.setState({...this.state, error: err.message})
-        }
+        this.props.dispatch(register(this.state.email, this.state.password));
     }
 
     handleNotificationClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void | undefined => {
-        this.setState({...this.state, error: null})
+        this.props.dispatch(removeModalsErrorMessages());
     }
 
     render() {
@@ -72,13 +70,13 @@ export default class SignUpModal extends Component<Props, State> {
                     <Form onSubmit={this.handleSubmit}>
                         <header className="modal-card-head">
                             <p className="modal-card-title">Sign up</p>
-                            <button className="delete" aria-label="close" onClick={this.props.close}></button>
+                            <button type="button" className="delete" aria-label="close" onClick={this.props.close}></button>
                         </header>
                         <section className="modal-card-body">
-                            {this.state.error !== null &&
+                            {this.props.registerError !== null &&
                                 <div className="notification is-danger">
-                                    <button className="delete" onClick={this.handleNotificationClick}></button>
-                                    {this.state.error}
+                                    <button type="button" className="delete" onClick={this.handleNotificationClick}></button>
+                                    {this.props.registerError}
                                 </div>
                             }
                             <div className="field">
@@ -147,12 +145,26 @@ export default class SignUpModal extends Component<Props, State> {
                             Already have an account? <a href="#" onClick={this.props.openloginModal}>log in</a>.
                         </section>
                         <footer className="modal-card-foot">
-                            <button className="button is-link">Submit</button>
-
-                            <button className="button" onClick={this.props.close}>Cancel</button>
+                            {this.props.isRegisterLoading ?
+                                <button className="button is-link is-loading">Submit</button>
+                                :
+                                <button className="button is-link" onSubmit={this.handleSubmit}>Submit</button>
+                            }
+                            <button className="button" type="button" onClick={this.props.close}>Cancel</button>
                         </footer>
                     </Form>
                 </div>
             </div>)
     }
 }
+
+const mapStateToProps = (state: RootState, ownProps: ParentProps) => ({
+    isActive: ownProps.isActive,
+    close: ownProps.close,
+    openloginModal: ownProps.openloginModal,
+    isRegisterLoading: state.auth.isRegisterLoading,
+    registerError: state.auth.registerError,
+});
+
+
+export default connect(mapStateToProps)(SignUpModal);

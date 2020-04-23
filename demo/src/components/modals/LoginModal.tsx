@@ -1,54 +1,54 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons'
-import { isEmailValid, isPasswordValid } from '../utils/Utils';
+import { isEmailValid } from '../utils/Utils';
 import Form from '../utils/Form'
+import { connect } from "react-redux";
+import { RootState } from '../../redux/Root';
+import { login, removeModalsErrorMessages } from '../../redux/actions/AuthActions';
+import { Dispatch } from "redux";
 
-
-interface Props {
+interface ParentProps {
     isActive: boolean;
     close: (e?: React.MouseEvent<Element, MouseEvent>) => void;
     openRecoverPasswordModalModal: (e: React.MouseEvent<Element, MouseEvent>) => void;
     openSignupModal: (e: React.MouseEvent<Element, MouseEvent>) => void;
-    login: (email: string, password: string) => Promise<void>;
 }
 
+interface ReduxProps {
+    isLoginLoading: boolean;
+    loginError: string | null;
+    dispatch: Dispatch<any>;
+}
+
+interface Props extends ParentProps, ReduxProps { }
+
 interface State {
-    error: String | null,
     email: string;
     password: string;
 }
 
-export default class LoginModal extends Component<Props, State> {
+class LoginModal extends Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
-        this.state = { error: null,  password: '', email: ''}
+        this.state = { password: '', email: '' }
     }
 
     handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>): void | undefined => {
-        this.setState({...this.state, email: event.target.value})
+        this.setState({ ...this.state, email: event.target.value })
     };
 
     handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>): void | undefined => {
-        this.setState({...this.state, password: event.target.value})
+        this.setState({ ...this.state, password: event.target.value })
     };
 
     handleSubmit = (event?: React.FormEvent<HTMLButtonElement>): void | undefined => {
-        this.submitAsync()
-    }
-
-    submitAsync = async (): Promise<void> => {
-        try {
-            await this.props.login(this.state.email, this.state.password);
-            this.props.close();
-        } catch (err) {
-            this.setState({...this.state, error: err.message})
-        }
+        this.props.dispatch(login(this.state.email, this.state.password));
     }
 
     handleNotificationClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void | undefined => {
-        this.setState({...this.state, error: null})
+        this.props.dispatch(removeModalsErrorMessages());
     }
 
     render() {
@@ -59,22 +59,21 @@ export default class LoginModal extends Component<Props, State> {
                     <Form onSubmit={this.handleSubmit}>
                         <header className="modal-card-head">
                             <p className="modal-card-title">Log in</p>
-                            <button className="delete" aria-label="close" onClick={this.props.close}></button>
+                            <button type="button" className="delete" aria-label="close" onClick={this.props.close}></button>
                         </header>
                         <section className="modal-card-body">
-                            {this.state.error !== null &&
+                            {this.props.loginError !== null &&
                                 <div className="notification is-danger">
-                                    <button className="delete" onClick={this.handleNotificationClick}></button>
-                                    {this.state.error}
+                                    <button type="button" className="delete" onClick={this.handleNotificationClick}></button>
+                                    {this.props.loginError}
                                 </div>
                             }
-
                             <div className="field">
                                 <label className="label">Email</label>
                                 <div className="control has-icons-left has-icons-right">
-                                    <input 
-                                        className="input" 
-                                        type="email" 
+                                    <input
+                                        className="input"
+                                        type="email"
                                         placeholder="Email"
                                         value={this.state.email}
                                         onChange={this.handleEmailChange}
@@ -88,9 +87,9 @@ export default class LoginModal extends Component<Props, State> {
                             <div className="field">
                                 <label className="label">Password</label>
                                 <div className="control has-icons-left has-icons-right">
-                                    <input 
-                                        className="input" 
-                                        type="password" 
+                                    <input
+                                        className="input"
+                                        type="password"
                                         placeholder="Password"
                                         value={this.state.password}
                                         onChange={this.handlePasswordChange}
@@ -105,9 +104,12 @@ export default class LoginModal extends Component<Props, State> {
                             <div style={{ textAlign: "center" }}>No account yet? <a href="#" onClick={this.props.openSignupModal}>Sign up</a>.</div>
                         </section>
                         <footer className="modal-card-foot">
-                            <button className="button is-link" onSubmit={this.handleSubmit}>Submit</button>
-
-                            <button className="button" onClick={this.props.close}>Cancel</button>
+                            {this.props.isLoginLoading ?
+                                <button className="button is-link is-loading">Submit</button>
+                                :
+                                <button className="button is-link" onSubmit={this.handleSubmit}>Submit</button>
+                            }
+                            <button className="button" type="button" onClick={this.props.close}>Cancel</button>
                         </footer>
                     </Form>
 
@@ -115,3 +117,14 @@ export default class LoginModal extends Component<Props, State> {
             </div>)
     }
 }
+
+const mapStateToProps = (state: RootState, ownProps: ParentProps) => ({
+    isActive: ownProps.isActive,
+    close: ownProps.close,
+    openRecoverPasswordModalModal: ownProps.openRecoverPasswordModalModal,
+    openSignupModal: ownProps.openSignupModal,
+    isLoginLoading: state.auth.isLoginLoading,
+    loginError: state.auth.loginError,
+});
+
+export default connect(mapStateToProps)(LoginModal);

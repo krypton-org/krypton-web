@@ -2,14 +2,21 @@ import React, { Component } from 'react';
 import SignUpModal from '../modals/SignUpModal';
 import RecoverPasswordsModal from '../modals/RecoverPasswordModal';
 import LoginModal from '../modals/LoginModal';
-import Krypton from '@krypton-org/krypton-web'
+import { connect } from "react-redux";
+import { RootState } from '../../redux/Root';
+import { Dispatch } from 'redux';
+import { logOut } from '../../redux/actions/AuthActions';
 
 interface Props {
-    register: (email: string, password: string) => Promise<void>;
-    login: (email: string, password: string) => Promise<void>;
-    recoverPassword: (email: string, password: string) => Promise<void>;
     isLoggedIn: boolean;
-    user: {email: string, _id: string, verified: boolean} | null | undefined;
+    user: { email: string, _id: string, verified: boolean } | null | undefined;
+    isRegisterSuccess: boolean,
+    isLoginSuccess: boolean,
+    isRecoverPasswordSuccess: boolean,
+    isLoginLoading: boolean,
+    isRegisterLoading: boolean,
+    isRecoverPasswordLoading: boolean,
+    dispatch: Dispatch<any>
 }
 
 interface State {
@@ -18,7 +25,7 @@ interface State {
     recoverPasswordModal: boolean;
 }
 
-export default class NavBar extends Component<Props, State> {
+class NavBar extends Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
@@ -45,6 +52,22 @@ export default class NavBar extends Component<Props, State> {
         this.setState({ loginModal: false, recoverPasswordModal: true, signUpModal: false })
     }
 
+    logOut = (e: React.MouseEvent<Element, MouseEvent>) => {
+        this.props.dispatch(logOut());
+    }
+
+    componentDidUpdate(prevProps: any){
+        if (prevProps.isLoginLoading && !this.props.isLoginLoading && this.props.isLoginSuccess){
+            this.closeModals();
+        }
+        if (prevProps.isRegisterLoading && !this.props.isRegisterLoading && this.props.isRegisterSuccess){
+            this.closeModals();
+        }
+        if (prevProps.isRecoverPasswordLoading && !this.props.isRecoverPasswordLoading && this.props.isRecoverPasswordSuccess){
+            this.closeModals();
+        }
+    }
+
     render = () => {
         return (
             <div>
@@ -69,11 +92,11 @@ export default class NavBar extends Component<Props, State> {
                                 {this.props.isLoggedIn ?
                                     <div className="navbar-item has-dropdown is-hoverable">
                                         <a className="navbar-link">
-                                        {this.props.user?.email}
+                                            {this.props.user?.email}
                                         </a>
-                                
+
                                         <div className="navbar-dropdown">
-                                            <a className="navbar-item">
+                                            <a className="navbar-item" onClick={this.logOut}>
                                                 Log out
                                             </a>
                                         </div>
@@ -88,9 +111,9 @@ export default class NavBar extends Component<Props, State> {
                                                 Log in
                                         </a>
                                         </div>
-                                    </div> 
+                                    </div>
                                 }
-                                
+
                             </div>
                         </div>
                     </div>
@@ -99,23 +122,32 @@ export default class NavBar extends Component<Props, State> {
                     isActive={this.state.signUpModal}
                     close={this.closeModals}
                     openloginModal={this.openLoginModal}
-                    register={this.props.register}
                 />
                 <RecoverPasswordsModal
                     isActive={this.state.recoverPasswordModal}
                     close={this.closeModals}
-                    recoverPassword={this.props.recoverPassword}
-
                 />
                 <LoginModal
                     isActive={this.state.loginModal}
                     close={this.closeModals}
                     openRecoverPasswordModalModal={this.openRecoverPasswordModalModal}
                     openSignupModal={this.openSignupModal}
-                    login={this.props.login}
                 />
 
             </div>
         )
     }
 }
+
+const mapStateToProps = (state: RootState) => ({
+    isLoggedIn: state.auth.isLoggedIn,
+    user: state.auth.user,
+    isRegisterSuccess: state.auth.isRegisterSuccess,
+    isLoginSuccess: state.auth.isLoginSuccess,
+    isRecoverPasswordSuccess: state.auth.isRecoverPasswordSuccess,
+    isLoginLoading: state.auth.isLoginLoading,
+    isRegisterLoading: state.auth.isRegisterLoading,
+    isRecoverPasswordLoading: state.auth.isRecoverPasswordLoading,
+  });
+
+export default connect(mapStateToProps)(NavBar);
