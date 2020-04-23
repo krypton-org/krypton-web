@@ -5,7 +5,7 @@ import { isEmailValid } from '../utils/Utils';
 import Form from '../utils/Form'
 import { connect } from "react-redux";
 import { RootState } from '../../redux/Root';
-import { login } from '../../redux/actions/AuthActions';
+import { login, removeModalsErrorMessages } from '../../redux/actions/AuthActions';
 import { Dispatch } from "redux";
 
 interface ParentProps {
@@ -48,7 +48,7 @@ class LoginModal extends Component<Props, State> {
     }
 
     handleNotificationClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void | undefined => {
-        this.setState({ ...this.state })
+        this.props.dispatch(removeModalsErrorMessages());
     }
 
     render() {
@@ -59,16 +59,15 @@ class LoginModal extends Component<Props, State> {
                     <Form onSubmit={this.handleSubmit}>
                         <header className="modal-card-head">
                             <p className="modal-card-title">Log in</p>
-                            <button className="delete" aria-label="close" onClick={this.props.close}></button>
+                            <button type="button" className="delete" aria-label="close" onClick={this.props.close}></button>
                         </header>
                         <section className="modal-card-body">
                             {this.props.loginError !== null &&
                                 <div className="notification is-danger">
-                                    <button className="delete" onClick={this.handleNotificationClick}></button>
+                                    <button type="button" className="delete" onClick={this.handleNotificationClick}></button>
                                     {this.props.loginError}
                                 </div>
                             }
-
                             <div className="field">
                                 <label className="label">Email</label>
                                 <div className="control has-icons-left has-icons-right">
@@ -110,7 +109,7 @@ class LoginModal extends Component<Props, State> {
                                 :
                                 <button className="button is-link" onSubmit={this.handleSubmit}>Submit</button>
                             }
-                            <button className="button" onClick={this.props.close}>Cancel</button>
+                            <button className="button" type="button" onClick={this.props.close}>Cancel</button>
                         </footer>
                     </Form>
 

@@ -1,4 +1,6 @@
 import { RootState } from '../Root';
+import { notify } from './NotifyActions';
+import { Severity } from '../states/NotifState';
 
 export const checkLoginState = () => {
     return (dispatch: any, getState: () => RootState) => {
@@ -17,6 +19,12 @@ export const login = (email: string, password: string) => {
             try {
                 await getState().auth.krypton.login(email, password);
                 dispatch(loginEnd(true, getState().auth.krypton.getUser()));
+                dispatch(notify({
+                    message: 'Log-in successful!',
+                    date: new Date(),
+                    type: Severity.SUCCESS,
+                    title: Severity.SUCCESS.charAt(0).toUpperCase() + Severity.SUCCESS.slice(1)
+                }));
             } catch (err) {
                 dispatch(loginFailure(err.message));
             }
@@ -34,6 +42,12 @@ export const register = (email: string, password: string) => {
             try {
                 await getState().auth.krypton.register(email, password);
                 dispatch(registerEnd());
+                dispatch(notify({
+                    message: 'Register successful!',
+                    date: new Date(),
+                    type: Severity.SUCCESS,
+                    title: Severity.SUCCESS.charAt(0).toUpperCase() + Severity.SUCCESS.slice(1)
+                }));
             } catch (err) {
                 dispatch(registerFailure(err.message));
             }
@@ -48,6 +62,12 @@ export const recoverPassword = (email: string) => {
             try {
                 await getState().auth.krypton.recoverPassword(email);
                 dispatch(recoverPasswordEnd());
+                dispatch(notify({
+                    message: 'If your email exists you will receive an email shortly to recover your password.',
+                    date: new Date(),
+                    type: Severity.INFO,
+                    title: Severity.INFO.charAt(0).toUpperCase() + Severity.INFO.slice(1)
+                }));
             } catch (err) {
                 dispatch(recoverPasswordFailure(err.message));
             }
@@ -102,4 +122,12 @@ export const checkLoginStateBegin = () => ({
 export const checkLoginStateEnd = (isLoggedIn: boolean, user: any) => ({
     type: 'CHECK_LOGIN_STATE_END',
     payload: { isLoggedIn, user }
+});
+
+export const logOut = () => ({
+    type: 'LOG_OUT'
+});
+
+export const removeModalsErrorMessages = () => ({
+    type: 'REMOVE_MODALS_ERROR_MESSAGES',
 });

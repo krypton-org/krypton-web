@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import './Toast.css'
-import { Node } from '../../data-structures/LinkedList'
-import { Notification } from './ToastContainer'
+import { Node } from './ToastContainer'
+import { Notification } from '../../redux/states/NotifState';
 
 interface Prop {
     notification: Notification;
@@ -27,7 +26,6 @@ export default class Toast extends Component<Prop, State> {
     handleClick = () => {
         this.setState({ ...this.state, hide: true });
         setTimeout(() => {
-            this.setState({ ...this.state, hide: false });
             this.props.remove(this.props.node)
         }, 550);
     }
@@ -40,9 +38,15 @@ export default class Toast extends Component<Prop, State> {
             }
         }
         return (
-            <div className="toast --blue" style={hidedStyle} role="alert" aria-live="assertive" aria-atomic="true" >
-                <div className="toast-body" dangerouslySetInnerHTML={{ __html: this.props.notification.message }} />
-            </div>
+            <article style={hidedStyle} className={"message is-"+this.props.notification.type.toString()}>
+                <div className="message-header">
+                    <p>{this.props.notification.title}</p>
+                    <button className="delete" aria-label="delete" onClick={this.handleClick}></button>
+                </div>
+                <div className="message-body">
+                    {this.props.notification.message}
+                </div>
+            </article>
         );
     }
 }

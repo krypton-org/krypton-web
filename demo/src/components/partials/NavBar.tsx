@@ -4,16 +4,19 @@ import RecoverPasswordsModal from '../modals/RecoverPasswordModal';
 import LoginModal from '../modals/LoginModal';
 import { connect } from "react-redux";
 import { RootState } from '../../redux/Root';
+import { Dispatch } from 'redux';
+import { logOut } from '../../redux/actions/AuthActions';
 
 interface Props {
     isLoggedIn: boolean;
     user: { email: string, _id: string, verified: boolean } | null | undefined;
-    registerSuccess: string | null,
-    loginSuccess: string | null,
-    recoverPasswordInfo: string | null,
+    isRegisterSuccess: boolean,
+    isLoginSuccess: boolean,
+    isRecoverPasswordSuccess: boolean,
     isLoginLoading: boolean,
     isRegisterLoading: boolean,
     isRecoverPasswordLoading: boolean,
+    dispatch: Dispatch<any>
 }
 
 interface State {
@@ -49,14 +52,18 @@ class NavBar extends Component<Props, State> {
         this.setState({ loginModal: false, recoverPasswordModal: true, signUpModal: false })
     }
 
+    logOut = (e: React.MouseEvent<Element, MouseEvent>) => {
+        this.props.dispatch(logOut());
+    }
+
     componentDidUpdate(prevProps: any){
-        if (prevProps.isLoginLoading && !this.props.isLoginLoading && this.props.loginSuccess){
+        if (prevProps.isLoginLoading && !this.props.isLoginLoading && this.props.isLoginSuccess){
             this.closeModals();
         }
-        if (prevProps.isRegisterLoading && !this.props.isRegisterLoading && this.props.registerSuccess){
+        if (prevProps.isRegisterLoading && !this.props.isRegisterLoading && this.props.isRegisterSuccess){
             this.closeModals();
         }
-        if (prevProps.isRecoverPasswordLoading && !this.props.isRecoverPasswordLoading && this.props.recoverPasswordInfo){
+        if (prevProps.isRecoverPasswordLoading && !this.props.isRecoverPasswordLoading && this.props.isRecoverPasswordSuccess){
             this.closeModals();
         }
     }
@@ -89,7 +96,7 @@ class NavBar extends Component<Props, State> {
                                         </a>
 
                                         <div className="navbar-dropdown">
-                                            <a className="navbar-item">
+                                            <a className="navbar-item" onClick={this.logOut}>
                                                 Log out
                                             </a>
                                         </div>
@@ -135,9 +142,9 @@ class NavBar extends Component<Props, State> {
 const mapStateToProps = (state: RootState) => ({
     isLoggedIn: state.auth.isLoggedIn,
     user: state.auth.user,
-    registerSuccess: state.auth.registerSuccess,
-    loginSuccess: state.auth.loginSuccess,
-    recoverPasswordInfo: state.auth.recoverPasswordInfo,
+    isRegisterSuccess: state.auth.isRegisterSuccess,
+    isLoginSuccess: state.auth.isLoginSuccess,
+    isRecoverPasswordSuccess: state.auth.isRecoverPasswordSuccess,
     isLoginLoading: state.auth.isLoginLoading,
     isRegisterLoading: state.auth.isRegisterLoading,
     isRecoverPasswordLoading: state.auth.isRecoverPasswordLoading,

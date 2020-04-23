@@ -7,14 +7,14 @@ const initialState: AuthState = {
   isLoggedIn: false,
   isLoginLoading: false,
   loginError: null,
-  loginSuccess: null,
+  isLoginSuccess: false,
   isRegisterLoading: false,
   registerError: null,
-  registerSuccess: null,
+  isRegisterSuccess: false,
   isCheckLoginStateLoading: false,
   isRecoverPasswordLoading: false,
   recoverPasswordError: null,
-  recoverPasswordInfo: null,
+  isRecoverPasswordSuccess: false,
 };
 
 export default function userReducer(
@@ -25,7 +25,8 @@ export default function userReducer(
     case 'LOGIN_BEGIN':
       return {
         ...state,
-        isLoginLoading: true
+        isLoginLoading: true,
+        isLoginSuccess: false
       }
 
     case 'LOGIN_END':
@@ -34,7 +35,8 @@ export default function userReducer(
         isLoggedIn: true,
         user: action.payload.user,
         isLoginLoading: false,
-        loginSuccess: 'Log-in successful!'
+        isLoginSuccess: true,
+        loginError: null
       }
     case 'LOGIN_FAILURE':
       return {
@@ -46,14 +48,16 @@ export default function userReducer(
     case 'REGISTER_BEGIN':
       return {
         ...state,
-        isRegisterLoading: true
+        isRegisterLoading: true,
+        isRegisterSuccess: false
       }
 
     case 'REGISTER_END':
       return {
         ...state,
         isRegisterLoading: false,
-        registerSuccess: 'Register successful!'
+        isRegisterSuccess: true,
+        registerError: null
       }
     case 'REGISTER_FAILURE':
       return {
@@ -64,14 +68,15 @@ export default function userReducer(
     case 'RECOVER_PASSWORD_BEGIN':
       return {
         ...state,
-        isRecoverPasswordLoading: true
+        isRecoverPasswordLoading: true,
+        isRecoverPasswordSuccess: false
       }
 
     case 'RECOVER_PASSWORD_END':
       return {
         ...state,
         isRecoverPasswordLoading: false,
-        recoverPasswordInfo: 'If your email exists you will receive an email shortly to recover your password.'
+        isRecoverPasswordSuccess: true
       }
     case 'RECOVER_PASSWORD_FAILURE':
       return {
@@ -91,6 +96,20 @@ export default function userReducer(
         user: action.payload.user,
         isCheckLoginStateLoading: false,
       }
+    case 'LOG_OUT':{
+      return {
+        ...state,
+        isLoggedIn: false,
+        user: null
+      }
+    }
+    case 'REMOVE_MODALS_ERROR_MESSAGES':{
+      return {
+        ...state,
+        registerError: null,
+        loginError: null
+      }
+    }
     default:
       return state;
   }

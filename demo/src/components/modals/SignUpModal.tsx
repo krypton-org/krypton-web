@@ -5,7 +5,7 @@ import { isEmailValid, isPasswordValid } from '../utils/Utils';
 import Form from '../utils/Form'
 import { connect } from "react-redux";
 import { RootState } from '../../redux/Root';
-import { register } from '../../redux/actions/AuthActions';
+import { register, removeModalsErrorMessages } from '../../redux/actions/AuthActions';
 import { Dispatch } from "redux";
 
 interface ParentProps {
@@ -54,7 +54,7 @@ class SignUpModal extends Component<Props, State> {
     }
 
     handleNotificationClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void | undefined => {
-        this.setState({ ...this.state })
+        this.props.dispatch(removeModalsErrorMessages());
     }
 
     render() {
@@ -70,12 +70,12 @@ class SignUpModal extends Component<Props, State> {
                     <Form onSubmit={this.handleSubmit}>
                         <header className="modal-card-head">
                             <p className="modal-card-title">Sign up</p>
-                            <button className="delete" aria-label="close" onClick={this.props.close}></button>
+                            <button type="button" className="delete" aria-label="close" onClick={this.props.close}></button>
                         </header>
                         <section className="modal-card-body">
                             {this.props.registerError !== null &&
                                 <div className="notification is-danger">
-                                    <button className="delete" onClick={this.handleNotificationClick}></button>
+                                    <button type="button" className="delete" onClick={this.handleNotificationClick}></button>
                                     {this.props.registerError}
                                 </div>
                             }
@@ -150,7 +150,7 @@ class SignUpModal extends Component<Props, State> {
                                 :
                                 <button className="button is-link" onSubmit={this.handleSubmit}>Submit</button>
                             }
-                            <button className="button" onClick={this.props.close}>Cancel</button>
+                            <button className="button" type="button" onClick={this.props.close}>Cancel</button>
                         </footer>
                     </Form>
                 </div>

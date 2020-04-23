@@ -3,7 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons'
 import { connect } from "react-redux";
 import { RootState } from '../../redux/Root';
-import { recoverPassword } from '../../redux/actions/AuthActions';
+import Form from '../utils/Form'
+import { recoverPassword, removeModalsErrorMessages } from '../../redux/actions/AuthActions';
 import { Dispatch } from "redux";
 
 interface ParentProps {
@@ -40,7 +41,7 @@ class RecoverPasswordsModal extends Component<Props, State> {
     }
 
     handleNotificationClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void | undefined => {
-        this.setState({ ...this.state })
+        this.props.dispatch(removeModalsErrorMessages());
     }
 
     render() {
@@ -48,14 +49,15 @@ class RecoverPasswordsModal extends Component<Props, State> {
             <div className={this.props.isActive ? "modal is-active" : "modal"}>
                 <div className="modal-background"></div>
                 <div className="modal-card">
+                    <Form onSubmit={this.handleSubmit}>
                     <header className="modal-card-head">
                         <p className="modal-card-title">Recover your password</p>
-                        <button className="delete" aria-label="close" onClick={this.props.close}></button>
+                        <button type="button" className="delete" aria-label="close" onClick={this.props.close}></button>
                     </header>
                     <section className="modal-card-body">
                         {this.props.recoverPasswordError !== null &&
                             <div className="notification is-danger">
-                                <button className="delete" onClick={this.handleNotificationClick}></button>
+                                <button type="button" className="delete" onClick={this.handleNotificationClick}></button>
                                 {this.props.recoverPasswordError}
                             </div>
                         }
@@ -87,8 +89,9 @@ class RecoverPasswordsModal extends Component<Props, State> {
                             :
                             <button className="button is-link" onSubmit={this.handleSubmit}>Submit</button>
                         }
-                        <button className="button" onClick={this.props.close}>Cancel</button>
+                        <button className="button" type="button" onClick={this.props.close}>Cancel</button>
                     </footer>
+                    </Form>
                 </div>
             </div>)
     }

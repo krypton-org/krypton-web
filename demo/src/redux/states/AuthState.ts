@@ -6,12 +6,12 @@ export default interface AuthState {
     isLoggedIn: boolean;
     isLoginLoading: boolean;
     loginError: string | null;
-    loginSuccess: string | null;
+    isLoginSuccess: boolean;
     isRegisterLoading: boolean;
     registerError: string | null;
-    registerSuccess: string | null;
+    isRegisterSuccess: boolean;
     isCheckLoginStateLoading: boolean;
     isRecoverPasswordLoading: boolean;
     recoverPasswordError: string | null;
-    recoverPasswordInfo: string | null;
+    isRecoverPasswordSuccess: boolean;
 }

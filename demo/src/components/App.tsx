@@ -8,6 +8,7 @@ import { connect } from "react-redux";
 import { checkLoginState } from '../redux/actions/AuthActions';
 import { RootState } from '../redux/Root';
 import { Dispatch } from "redux";
+import ToastContainer from './partials/ToastContainer';
 
 interface Props {
   isCheckLoginStateLoading: boolean
@@ -29,9 +30,11 @@ class App extends Component<Props> {
       }
       return <h1 style={style}>Loading...</h1>
     } else {
+
       return (
         <div className="App">
           <NavBar />
+          <ToastContainer />
           <Home />
           <Footer />
         </div>
