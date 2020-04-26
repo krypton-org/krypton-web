@@ -29,7 +29,7 @@ export default class Toast extends Component<Prop, State> {
         this.setState({ ...this.state, hide: true });
         setTimeout(() => {
             this.props.remove(this.props.node)
-        }, 550);
+        }, 1000);
     }
 
     render() {
@@ -39,8 +39,11 @@ export default class Toast extends Component<Prop, State> {
                 opacity: 0,
             }
         }
+        let animationStyle = {
+            transition: 'all .5s ease-in-out'
+        }
         return (
-            <article style={hidedStyle} className={"message is-" + this.props.type.toString()}>
+            <article style={{...hidedStyle, ...animationStyle}} className={"message is-" + this.props.type.toString()}>
                 <div className="message-body">
                     <div className="columns">
                         <div className="column">
