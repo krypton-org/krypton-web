@@ -69,8 +69,8 @@ class ToastContainer extends Component<Prop, State> {
 
     remove = (linkedListElement: Node<Notification>) => {
         const result: State = {
-            firstEl: null,
-            lastEl: null,
+            firstEl: this.state.firstEl,
+            lastEl: this.state.firstEl,
             lastNotification: this.state.lastNotification
         };
         if (linkedListElement.prev && linkedListElement.next) {
@@ -108,11 +108,11 @@ class ToastContainer extends Component<Prop, State> {
         while (current && i < MAX_DISPLAYED) {
             toasts.push(<Toast
                 node={current}
-                notification={current.element}
-                key={i}
-                remove={(listEl) => {
-                    this.remove(listEl);
-                }}
+                message={current.element.message}
+                type={current.element.type}
+                date={current.element.date}
+                key={current.element.date.getTime()}
+                remove={(node) => { this.remove(node); }}
             />);
             current = current.next;
             ++i;

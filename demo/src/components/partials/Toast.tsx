@@ -3,7 +3,9 @@ import { Node } from './ToastContainer'
 import { Notification } from '../../redux/states/NotifState';
 
 interface Prop {
-    notification: Notification;
+    message: string;
+    type: string;
+    date: Date;
     key: number
     remove: (node: Node<Notification>) => void;
     node: Node<Notification>;
@@ -38,13 +40,17 @@ export default class Toast extends Component<Prop, State> {
             }
         }
         return (
-            <article style={hidedStyle} className={"message is-"+this.props.notification.type.toString()}>
-                <div className="message-header">
-                    <p>{this.props.notification.title}</p>
-                    <button className="delete" aria-label="delete" onClick={this.handleClick}></button>
-                </div>
+            <article style={hidedStyle} className={"message is-" + this.props.type.toString()}>
                 <div className="message-body">
-                    {this.props.notification.message}
+                    <div className="columns">
+                        <div className="column">
+                            {this.props.message}
+                        </div>
+                        <div className="column is-one-fifth is-vven">
+                            <button className="delete" aria-label="delete" onClick={this.handleClick}></button>
+
+                        </div>
+                    </div>
                 </div>
             </article>
         );
