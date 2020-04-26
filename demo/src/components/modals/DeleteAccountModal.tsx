@@ -6,6 +6,7 @@ import { connect } from "react-redux";
 import { RootState } from '../../redux/Root';
 import { removeModalsErrorMessages, deleteAccount } from '../../redux/actions/AuthActions';
 import { Dispatch } from "redux";
+import { withRouter, RouteComponentProps } from 'react-router-dom';
 
 interface ParentProps {
     isActive: boolean;
@@ -13,19 +14,18 @@ interface ParentProps {
 }
 
 interface ReduxProps {
-    deleteAccountError: string | null;
     isDeleteAccountLoading: boolean;
-    isActive: boolean;
+    deleteAccountError: string | null;
     dispatch: Dispatch<any>;
 }
-
-interface Props extends ParentProps, ReduxProps { }
 
 interface State {
     password: string;
 }
 
-class LoginModal extends Component<Props, State> {
+interface Props extends ParentProps, ReduxProps, RouteComponentProps {}
+
+class DeleteAccountModal extends Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
@@ -37,11 +37,18 @@ class LoginModal extends Component<Props, State> {
     };
 
     handleSubmit = (event?: React.FormEvent<HTMLButtonElement>): void | undefined => {
+        this.props.history.push('/');
+        this.props.dispatch(removeModalsErrorMessages());
         this.props.dispatch(deleteAccount(this.state.password));
     }
 
     handleNotificationClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void | undefined => {
         this.props.dispatch(removeModalsErrorMessages());
+    }
+
+    handleCloseModal = (e?: React.MouseEvent<Element, MouseEvent>): void => {
+        this.props.dispatch(removeModalsErrorMessages());
+        this.props.close()
     }
 
     render() {
@@ -52,7 +59,7 @@ class LoginModal extends Component<Props, State> {
                     <Form onSubmit={this.handleSubmit}>
                         <header className="modal-card-head">
                             <p className="modal-card-title">Delete account</p>
-                            <button type="button" className="delete" aria-label="close" onClick={this.props.close}></button>
+                            <button type="button" className="delete" aria-label="close" onClick={this.handleCloseModal}></button>
                         </header>
                         <section className="modal-card-body">
                             {this.props.deleteAccountError !== null &&
@@ -83,7 +90,7 @@ class LoginModal extends Component<Props, State> {
                                 :
                                 <button className="button is-link" onSubmit={this.handleSubmit}>Submit</button>
                             }
-                            <button className="button" type="button" onClick={this.props.close}>Cancel</button>
+                            <button className="button" type="button" onClick={this.handleCloseModal}>Cancel</button>
                         </footer>
                     </Form>
 
@@ -93,8 +100,9 @@ class LoginModal extends Component<Props, State> {
 }
 
 const mapStateToProps = (state: RootState, ownProps: ParentProps) => ({
+    isActive: ownProps.isActive,
     close: ownProps.close,
     isDeleteAccountLoading: state.auth.isDeleteAccountLoading,
     deleteAccountError: state.auth.deleteAccountError,
 });
-export default connect(mapStateToProps)(LoginModal);
+export default withRouter(connect(mapStateToProps)(DeleteAccountModal));

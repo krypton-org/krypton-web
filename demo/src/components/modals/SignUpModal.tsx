@@ -57,6 +57,11 @@ class SignUpModal extends Component<Props, State> {
         this.props.dispatch(removeModalsErrorMessages());
     }
 
+    handleCloseModal = (e?: React.MouseEvent<Element, MouseEvent>): void => {
+        this.props.dispatch(removeModalsErrorMessages());
+        this.props.close()
+    }
+
     render() {
         const showEmailErrorTips: boolean = this.state.email !== '' && !this.state.isEmailValid;
         const showEmailSuccessTips: boolean = this.state.email !== '' && this.state.isEmailValid;
@@ -69,7 +74,7 @@ class SignUpModal extends Component<Props, State> {
                     <Form onSubmit={this.handleSubmit}>
                         <header className="modal-card-head">
                             <p className="modal-card-title">Sign up</p>
-                            <button type="button" className="delete" aria-label="close" onClick={this.props.close}></button>
+                            <button type="button" className="delete" aria-label="close" onClick={this.handleCloseModal}></button>
                         </header>
                         <section className="modal-card-body">
                             {this.props.registerError !== null &&
@@ -149,7 +154,7 @@ class SignUpModal extends Component<Props, State> {
                                 :
                                 <button className="button is-link" onSubmit={this.handleSubmit}>Submit</button>
                             }
-                            <button className="button" type="button" onClick={this.props.close}>Cancel</button>
+                            <button className="button" type="button" onClick={this.handleCloseModal}>Cancel</button>
                         </footer>
                     </Form>
                 </div>

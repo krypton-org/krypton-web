@@ -50,6 +50,11 @@ class LoginModal extends Component<Props, State> {
         this.props.dispatch(removeModalsErrorMessages());
     }
 
+    handleCloseModal = (e?: React.MouseEvent<Element, MouseEvent>): void => {
+        this.props.dispatch(removeModalsErrorMessages());
+        this.props.close()
+    }
+
     render() {
         return (
             <div className={this.props.isActive ? "modal is-active" : "modal"}>
@@ -58,7 +63,7 @@ class LoginModal extends Component<Props, State> {
                     <Form onSubmit={this.handleSubmit}>
                         <header className="modal-card-head">
                             <p className="modal-card-title">Log in</p>
-                            <button type="button" className="delete" aria-label="close" onClick={this.props.close}></button>
+                            <button type="button" className="delete" aria-label="close" onClick={this.handleCloseModal}></button>
                         </header>
                         <section className="modal-card-body">
                             {this.props.loginError !== null &&
@@ -108,7 +113,7 @@ class LoginModal extends Component<Props, State> {
                                 :
                                 <button className="button is-link" onSubmit={this.handleSubmit}>Submit</button>
                             }
-                            <button className="button" type="button" onClick={this.props.close}>Cancel</button>
+                            <button className="button" type="button" onClick={this.handleCloseModal}>Cancel</button>
                         </footer>
                     </Form>
 

@@ -7,7 +7,7 @@ import { RootState } from '../../redux/Root';
 import { Dispatch } from 'redux';
 import { logOut } from '../../redux/actions/AuthActions';
 import {
-    Link, withRouter
+    Link, withRouter, RouteComponentProps
 } from "react-router-dom";
 
 interface Props {
@@ -20,7 +20,6 @@ interface Props {
     isRegisterLoading: boolean,
     isRecoverPasswordLoading: boolean,
     dispatch: Dispatch<any>
-    history: { push: (route: any) => void }
 }
 
 interface State {
@@ -29,9 +28,9 @@ interface State {
     recoverPasswordModal: boolean;
 }
 
-class NavBar extends Component<Props, State> {
+class NavBar extends Component<Props & RouteComponentProps, State> {
 
-    constructor(props: Props) {
+    constructor(props: Props & RouteComponentProps) {
         super(props);
         this.state = {
             loginModal: false,
