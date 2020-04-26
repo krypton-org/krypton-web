@@ -14,4 +14,11 @@ export default interface AuthState {
     isRecoverPasswordLoading: boolean;
     recoverPasswordError: string | null;
     isRecoverPasswordSuccess: boolean;
+    isChangePasswordLoading: boolean;
+    isChangePasswordSuccess: boolean;
+    isDeleteAccountLoading: boolean;
+    isDeleteAccountSuccess: boolean;
+    deleteAccountError: string | null;
+    isUpdateEmailLoading: boolean;
+    isUpdateEmailSuccess: boolean;
 }

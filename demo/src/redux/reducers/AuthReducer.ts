@@ -15,6 +15,13 @@ const initialState: AuthState = {
   isRecoverPasswordLoading: false,
   recoverPasswordError: null,
   isRecoverPasswordSuccess: false,
+  isChangePasswordLoading: false,
+  isChangePasswordSuccess: false,
+  isDeleteAccountLoading: false,
+  isDeleteAccountSuccess: false,
+  deleteAccountError: null,
+  isUpdateEmailLoading: false,
+  isUpdateEmailSuccess: false,
 };
 
 export default function userReducer(
@@ -96,20 +103,91 @@ export default function userReducer(
         user: action.payload.user,
         isCheckLoginStateLoading: false,
       }
-    case 'LOG_OUT':{
+    case 'LOG_OUT': {
       return {
         ...state,
         isLoggedIn: false,
         user: null
       }
     }
-    case 'REMOVE_MODALS_ERROR_MESSAGES':{
+    case 'REMOVE_MODALS_ERROR_MESSAGES': {
       return {
         ...state,
         registerError: null,
-        loginError: null
+        loginError: null,
+        deleteAccountError: null
       }
     }
+    case 'CHANGE_PASSWORD_BEGIN':
+      return {
+        ...state,
+        isChangePasswordLoading: true,
+        isChangePasswordSuccess: false
+      };
+
+    case 'CHANGE_PASSWORD_END':
+      return {
+        ...state,
+        isChangePasswordLoading: false,
+        isChangePasswordSuccess: true,
+      };
+
+
+    case 'CHANGE_PASSWORD_FAILURE':
+      return {
+        ...state,
+        isChangePasswordLoading: false,
+        isChangePasswordSuccess: false,
+      };
+
+
+    case 'DELETE_ACCOUNT_BEGIN':
+      return {
+        ...state,
+        isDeleteAccountLoading: true,
+        isDeleteAccountSuccess: false
+      };
+
+
+    case 'DELETE_ACCOUNT_END':
+      return {
+        ...state,
+        isDeleteAccountLoading: false,
+        isDeleteAccountSuccess: true,
+        deleteAccountError: null
+      };
+
+
+    case 'DELETE_ACCOUNT_FAILURE':
+      return {
+        ...state,
+        isDeleteAccountLoading: false,
+        deleteAccountError: action.payload.error
+      };
+
+
+    case 'UPDATE_EMAIL_BEGIN':
+      return {
+        ...state,
+        isUpdateEmailLoading: true,
+        isUpdateEmailSuccess: false
+      };
+
+    case 'UPDATE_EMAIL_END':
+      return {
+        ...state,
+        isUpdateEmailLoading: false,
+        isUpdateEmailSuccess: true,
+        user: action.payload.user,
+      }
+
+
+    case 'UPDATE_EMAIL_FAILURE':
+      return {
+        ...state,
+        isUpdateEmailLoading: false,
+      };
+
     default:
       return state;
   }

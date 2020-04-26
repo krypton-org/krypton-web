@@ -1,29 +1,27 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons'
+import { faLock } from '@fortawesome/free-solid-svg-icons'
 import Form from '../utils/Form'
 import { connect } from "react-redux";
 import { RootState } from '../../redux/Root';
-import { login, removeModalsErrorMessages } from '../../redux/actions/AuthActions';
+import { removeModalsErrorMessages, deleteAccount } from '../../redux/actions/AuthActions';
 import { Dispatch } from "redux";
 
 interface ParentProps {
     isActive: boolean;
     close: (e?: React.MouseEvent<Element, MouseEvent>) => void;
-    openRecoverPasswordModalModal: (e: React.MouseEvent<Element, MouseEvent>) => void;
-    openSignupModal: (e: React.MouseEvent<Element, MouseEvent>) => void;
 }
 
 interface ReduxProps {
-    isLoginLoading: boolean;
-    loginError: string | null;
+    deleteAccountError: string | null;
+    isDeleteAccountLoading: boolean;
+    isActive: boolean;
     dispatch: Dispatch<any>;
 }
 
 interface Props extends ParentProps, ReduxProps { }
 
 interface State {
-    email: string;
     password: string;
 }
 
@@ -31,19 +29,15 @@ class LoginModal extends Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
-        this.state = { password: '', email: '' }
+        this.state = { password: '' }
     }
-
-    handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>): void | undefined => {
-        this.setState({ ...this.state, email: event.target.value })
-    };
 
     handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>): void | undefined => {
         this.setState({ ...this.state, password: event.target.value })
     };
 
     handleSubmit = (event?: React.FormEvent<HTMLButtonElement>): void | undefined => {
-        this.props.dispatch(login(this.state.email, this.state.password));
+        this.props.dispatch(deleteAccount(this.state.password));
     }
 
     handleNotificationClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void | undefined => {
@@ -57,34 +51,18 @@ class LoginModal extends Component<Props, State> {
                 <div className="modal-card">
                     <Form onSubmit={this.handleSubmit}>
                         <header className="modal-card-head">
-                            <p className="modal-card-title">Log in</p>
+                            <p className="modal-card-title">Delete account</p>
                             <button type="button" className="delete" aria-label="close" onClick={this.props.close}></button>
                         </header>
                         <section className="modal-card-body">
-                            {this.props.loginError !== null &&
+                            {this.props.deleteAccountError !== null &&
                                 <div className="notification is-danger">
                                     <button type="button" className="delete" onClick={this.handleNotificationClick}></button>
-                                    {this.props.loginError}
+                                    {this.props.deleteAccountError}
                                 </div>
                             }
                             <div className="field">
-                                <label className="label">Email</label>
-                                <div className="control has-icons-left has-icons-right">
-                                    <input
-                                        className="input"
-                                        type="email"
-                                        placeholder="Email"
-                                        value={this.state.email}
-                                        onChange={this.handleEmailChange}
-                                    />
-                                    <span className="icon is-small is-left">
-                                        <FontAwesomeIcon icon={faEnvelope} />
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="field">
-                                <label className="label">Password</label>
+                                <label className="label">Enter your password</label>
                                 <div className="control has-icons-left has-icons-right">
                                     <input
                                         className="input"
@@ -98,12 +76,9 @@ class LoginModal extends Component<Props, State> {
                                     </span>
                                 </div>
                             </div>
-                            <a href="#" onClick={this.props.openRecoverPasswordModalModal}>Password forgotten?</a>
-                            <hr />
-                            <div style={{ textAlign: "center" }}>No account yet? <a href="#" onClick={this.props.openSignupModal}>Sign up</a>.</div>
                         </section>
                         <footer className="modal-card-foot">
-                            {this.props.isLoginLoading ?
+                            {this.props.isDeleteAccountLoading ?
                                 <button className="button is-link is-loading">Submit</button>
                                 :
                                 <button className="button is-link" onSubmit={this.handleSubmit}>Submit</button>
@@ -118,12 +93,8 @@ class LoginModal extends Component<Props, State> {
 }
 
 const mapStateToProps = (state: RootState, ownProps: ParentProps) => ({
-    isActive: ownProps.isActive,
     close: ownProps.close,
-    openRecoverPasswordModalModal: ownProps.openRecoverPasswordModalModal,
-    openSignupModal: ownProps.openSignupModal,
-    isLoginLoading: state.auth.isLoginLoading,
-    loginError: state.auth.loginError,
+    isDeleteAccountLoading: state.auth.isDeleteAccountLoading,
+    deleteAccountError: state.auth.deleteAccountError,
 });
-
 export default connect(mapStateToProps)(LoginModal);

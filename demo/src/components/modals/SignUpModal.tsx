@@ -58,11 +58,10 @@ class SignUpModal extends Component<Props, State> {
     }
 
     render() {
-        const showEmailErrorTips: boolean = this.state.email != '' && !this.state.isEmailValid;
-        const showEmailSuccessTips: boolean = this.state.email != '' && this.state.isEmailValid;
-        const showPasswordErrorTips: boolean = this.state.password != '' && !this.state.isPasswordValid;
-        const showPasswordSuccessTips: boolean = this.state.password != '' && this.state.isPasswordValid;
-
+        const showEmailErrorTips: boolean = this.state.email !== '' && !this.state.isEmailValid;
+        const showEmailSuccessTips: boolean = this.state.email !== '' && this.state.isEmailValid;
+        const showPasswordErrorTips: boolean = this.state.password !== '' && !this.state.isPasswordValid;
+        const showPasswordSuccessTips: boolean = this.state.password !== '' && this.state.isPasswordValid;
         return (
             <div className={this.props.isActive ? "modal is-active" : "modal"}>
                 <div className="modal-background"></div>

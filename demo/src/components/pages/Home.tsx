@@ -8,14 +8,14 @@ export default () => {
                     <div className="container">
                         <h1 className="title">
                             Welcome to this Krypton demo app. It is a simple todo list ;)
-                </h1>
+                        </h1>
                         <h2 className="subtitle">
                             Register to add your todos!
-                </h2>
+                        </h2>
                     </div>
                 </div>
             </section>
-            <div className="container" style={{ marginTop: "20px", marginBottom: "20px" }}>
+            <div className="container">
                 <p>
                     This is just a demo, the database is purged each night. It aims to show how easy it is to use Krypton for website authentication.
 

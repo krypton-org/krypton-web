@@ -6,6 +6,9 @@ import { connect } from "react-redux";
 import { RootState } from '../../redux/Root';
 import { Dispatch } from 'redux';
 import { logOut } from '../../redux/actions/AuthActions';
+import {
+    Link, withRouter
+} from "react-router-dom";
 
 interface Props {
     isLoggedIn: boolean;
@@ -17,6 +20,7 @@ interface Props {
     isRegisterLoading: boolean,
     isRecoverPasswordLoading: boolean,
     dispatch: Dispatch<any>
+    history: { push: (route: any) => void }
 }
 
 interface State {
@@ -54,16 +58,17 @@ class NavBar extends Component<Props, State> {
 
     logOut = (e: React.MouseEvent<Element, MouseEvent>) => {
         this.props.dispatch(logOut());
+        this.props.history.push('/');
     }
 
-    componentDidUpdate(prevProps: any){
-        if (prevProps.isLoginLoading && !this.props.isLoginLoading && this.props.isLoginSuccess){
+    componentDidUpdate(prevProps: any) {
+        if (prevProps.isLoginLoading && !this.props.isLoginLoading && this.props.isLoginSuccess) {
             this.closeModals();
         }
-        if (prevProps.isRegisterLoading && !this.props.isRegisterLoading && this.props.isRegisterSuccess){
+        if (prevProps.isRegisterLoading && !this.props.isRegisterLoading && this.props.isRegisterSuccess) {
             this.closeModals();
         }
-        if (prevProps.isRecoverPasswordLoading && !this.props.isRecoverPasswordLoading && this.props.isRecoverPasswordSuccess){
+        if (prevProps.isRecoverPasswordLoading && !this.props.isRecoverPasswordLoading && this.props.isRecoverPasswordSuccess) {
             this.closeModals();
         }
     }
@@ -85,8 +90,8 @@ class NavBar extends Component<Props, State> {
                         </div>
                         <div id="navbarBasicExample" className="navbar-menu">
                             <div className="navbar-start">
-                                <a className="navbar-item">Home</a>
-                                <a className="navbar-item">Todos</a>
+                                <Link className="navbar-item" to="/">Home</Link>
+                                <Link className="navbar-item" to="/todos">Todos</Link>
                             </div>
                             <div className="navbar-end">
                                 {this.props.isLoggedIn ?
@@ -96,6 +101,7 @@ class NavBar extends Component<Props, State> {
                                         </a>
 
                                         <div className="navbar-dropdown">
+                                            <Link className="navbar-item" to="/settings">Settings</Link>
                                             <a className="navbar-item" onClick={this.logOut}>
                                                 Log out
                                             </a>
@@ -148,6 +154,6 @@ const mapStateToProps = (state: RootState) => ({
     isLoginLoading: state.auth.isLoginLoading,
     isRegisterLoading: state.auth.isRegisterLoading,
     isRecoverPasswordLoading: state.auth.isRecoverPasswordLoading,
-  });
+});
 
-export default connect(mapStateToProps)(NavBar);
+export default withRouter(connect(mapStateToProps)(NavBar));

@@ -9,6 +9,13 @@ import { checkLoginState } from '../redux/actions/AuthActions';
 import { RootState } from '../redux/Root';
 import { Dispatch } from "redux";
 import ToastContainer from './partials/ToastContainer';
+import {
+  BrowserRouter as Router,
+  Route,
+} from "react-router-dom";
+import Settings from './pages/settings/Index';
+import Todos from './pages/todos/Index';
+import PrivateRoute from './utils/PrivateRoute';
 
 interface Props {
   isCheckLoginStateLoading: boolean
@@ -23,7 +30,7 @@ class App extends Component<Props> {
 
   render() {
     if (this.props.isCheckLoginStateLoading) {
-      const style : React.CSSProperties = {
+      const style: React.CSSProperties = {
         position: "fixed", /* or absolute */
         top: "50%",
         left: "50%"
@@ -32,12 +39,20 @@ class App extends Component<Props> {
     } else {
 
       return (
-        <div className="App">
+        <Router>
           <NavBar />
           <ToastContainer />
-          <Home />
+          <Route exact path="/">
+            <Home />
+          </Route>
+          <PrivateRoute path="/settings">
+            <Settings />
+          </PrivateRoute>
+          <PrivateRoute path="/todos">
+            <Todos />
+          </PrivateRoute>
           <Footer />
-        </div>
+        </Router>
       );
     }
   }
