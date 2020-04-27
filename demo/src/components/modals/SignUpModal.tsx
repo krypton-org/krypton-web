@@ -7,6 +7,7 @@ import { connect } from "react-redux";
 import { RootState } from '../../redux/Root';
 import { register, removeModalsErrorMessages } from '../../redux/actions/AuthActions';
 import { Dispatch } from "redux";
+import { AuthTransactionType } from '../../redux/states/AuthState';
 
 interface ParentProps {
     isActive: boolean;
@@ -15,8 +16,9 @@ interface ParentProps {
 }
 
 interface ReduxProps {
-    isRegisterLoading: boolean;
-    registerError: string | null;
+    isTransactionLoading: boolean;
+    localErrorMessage: string | null;
+    transactionType: AuthTransactionType | null;
     dispatch: Dispatch<any>
 }
 
@@ -77,10 +79,10 @@ class SignUpModal extends Component<Props, State> {
                             <button type="button" className="delete" aria-label="close" onClick={this.handleCloseModal}></button>
                         </header>
                         <section className="modal-card-body">
-                            {this.props.registerError !== null &&
+                            {this.props.localErrorMessage !== null && this.props.transactionType === AuthTransactionType.REGISTER &&
                                 <div className="notification is-danger">
                                     <button type="button" className="delete" onClick={this.handleNotificationClick}></button>
-                                    {this.props.registerError}
+                                    {this.props.localErrorMessage}
                                 </div>
                             }
                             <div className="field">
@@ -149,7 +151,7 @@ class SignUpModal extends Component<Props, State> {
                             Already have an account? <a href="#" onClick={this.props.openloginModal}>log in</a>.
                         </section>
                         <footer className="modal-card-foot">
-                            {this.props.isRegisterLoading ?
+                            {this.props.isTransactionLoading && this.props.transactionType === AuthTransactionType.REGISTER ?
                                 <button className="button is-link is-loading">Submit</button>
                                 :
                                 <button className="button is-link" onSubmit={this.handleSubmit}>Submit</button>
@@ -166,8 +168,9 @@ const mapStateToProps = (state: RootState, ownProps: ParentProps) => ({
     isActive: ownProps.isActive,
     close: ownProps.close,
     openloginModal: ownProps.openloginModal,
-    isRegisterLoading: state.auth.isRegisterLoading,
-    registerError: state.auth.registerError,
+    isTransactionLoading: state.auth.isTransactionLoading,
+    localErrorMessage: state.auth.localErrorMessage,
+    transactionType :  state.auth.transactionType,
 });
 
 

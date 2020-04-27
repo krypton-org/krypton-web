@@ -7,6 +7,7 @@ import { RootState } from '../../redux/Root';
 import { removeModalsErrorMessages, deleteAccount } from '../../redux/actions/AuthActions';
 import { Dispatch } from "redux";
 import { withRouter, RouteComponentProps } from 'react-router-dom';
+import { AuthTransactionType } from '../../redux/states/AuthState';
 
 interface ParentProps {
     isActive: boolean;
@@ -14,8 +15,10 @@ interface ParentProps {
 }
 
 interface ReduxProps {
-    isDeleteAccountLoading: boolean;
-    deleteAccountError: string | null;
+    isTransactionLoading: boolean;
+    localErrorMessage: string | null;
+    transactionType: AuthTransactionType | null;
+    isTransactionSuccess: boolean;
     dispatch: Dispatch<any>;
 }
 
@@ -37,8 +40,6 @@ class DeleteAccountModal extends Component<Props, State> {
     };
 
     handleSubmit = (event?: React.FormEvent<HTMLButtonElement>): void | undefined => {
-        this.props.history.push('/');
-        this.props.dispatch(removeModalsErrorMessages());
         this.props.dispatch(deleteAccount(this.state.password));
     }
 
@@ -49,6 +50,12 @@ class DeleteAccountModal extends Component<Props, State> {
     handleCloseModal = (e?: React.MouseEvent<Element, MouseEvent>): void => {
         this.props.dispatch(removeModalsErrorMessages());
         this.props.close()
+    }
+
+    componentDidUpdate(prevProps: Props){
+        if (this.props.isTransactionSuccess && this.props.transactionType === AuthTransactionType.DELETE_ACCOUNT){
+            this.props.history.push('/');
+        }
     }
 
     render() {
@@ -62,10 +69,10 @@ class DeleteAccountModal extends Component<Props, State> {
                             <button type="button" className="delete" aria-label="close" onClick={this.handleCloseModal}></button>
                         </header>
                         <section className="modal-card-body">
-                            {this.props.deleteAccountError !== null &&
+                            {this.props.localErrorMessage !== null && this.props.transactionType === AuthTransactionType.DELETE_ACCOUNT &&
                                 <div className="notification is-danger">
                                     <button type="button" className="delete" onClick={this.handleNotificationClick}></button>
-                                    {this.props.deleteAccountError}
+                                    {this.props.localErrorMessage}
                                 </div>
                             }
                             <div className="field">
@@ -85,7 +92,7 @@ class DeleteAccountModal extends Component<Props, State> {
                             </div>
                         </section>
                         <footer className="modal-card-foot">
-                            {this.props.isDeleteAccountLoading ?
+                            {(this.props.isTransactionLoading && this.props.transactionType === AuthTransactionType.DELETE_ACCOUNT) ?
                                 <button className="button is-link is-loading">Submit</button>
                                 :
                                 <button className="button is-link" onSubmit={this.handleSubmit}>Submit</button>
@@ -102,7 +109,9 @@ class DeleteAccountModal extends Component<Props, State> {
 const mapStateToProps = (state: RootState, ownProps: ParentProps) => ({
     isActive: ownProps.isActive,
     close: ownProps.close,
-    isDeleteAccountLoading: state.auth.isDeleteAccountLoading,
-    deleteAccountError: state.auth.deleteAccountError,
+    isTransactionLoading: state.auth.isTransactionLoading,
+    localErrorMessage: state.auth.localErrorMessage,
+    transactionType: state.auth.transactionType,
+    isTransactionSuccess: state.auth.isTransactionSuccess
 });
 export default withRouter(connect(mapStateToProps)(DeleteAccountModal));

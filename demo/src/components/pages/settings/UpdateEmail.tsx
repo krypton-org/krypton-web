@@ -7,11 +7,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faCheck, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { isEmailValid } from '../../utils/Utils';
 import { updateEmail } from '../../../redux/actions/AuthActions';
+import { AuthTransactionType } from '../../../redux/states/AuthState';
 
 interface Props {
     dispatch: Dispatch<any>;
-    isUpdateEmailLoading: boolean;
     user: { email: string, _id: string, verified: boolean } | null | undefined;
+    isTransactionLoading: boolean;
+    transactionType: AuthTransactionType | null;
 }
 
 interface State {
@@ -50,7 +52,9 @@ class UpdateEmail extends Component<Props, State> {
     };
 
     componentDidUpdate(prevProps: Props) {
-        if (prevProps.isUpdateEmailLoading && !this.props.isUpdateEmailLoading) {
+        if (prevProps.isTransactionLoading 
+            && !this.props.isTransactionLoading 
+            && this.props.transactionType === AuthTransactionType.UPDATE_EMAIL) {
             this.setState({ ...this.state, isEditionModeEnabled: false })
         }
     }
@@ -61,7 +65,7 @@ class UpdateEmail extends Component<Props, State> {
 
         const isDisabled = !isEmailValid(this.state.email);
         let submitClass = 'button is-link '
-        if (this.props.isUpdateEmailLoading) {
+        if (this.props.isTransactionLoading && this.props.transactionType === AuthTransactionType.UPDATE_EMAIL) {
             submitClass += 'is-loading'
         }
         return (
@@ -126,7 +130,8 @@ class UpdateEmail extends Component<Props, State> {
 }
 
 const mapStateToProps = (state: RootState) => ({
-    isUpdateEmailLoading: state.auth.isUpdateEmailLoading,
+    isTransactionLoading: state.auth.isTransactionLoading,
+    transactionType: state.auth.transactionType,
     user: state.auth.user
 });
 

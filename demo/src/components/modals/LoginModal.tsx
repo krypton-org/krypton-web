@@ -6,6 +6,7 @@ import { connect } from "react-redux";
 import { RootState } from '../../redux/Root';
 import { login, removeModalsErrorMessages } from '../../redux/actions/AuthActions';
 import { Dispatch } from "redux";
+import { AuthTransactionType } from '../../redux/states/AuthState';
 
 interface ParentProps {
     isActive: boolean;
@@ -15,8 +16,9 @@ interface ParentProps {
 }
 
 interface ReduxProps {
-    isLoginLoading: boolean;
-    loginError: string | null;
+    isTransactionLoading: boolean;
+    localErrorMessage: string | null;
+    transactionType: AuthTransactionType | null;
     dispatch: Dispatch<any>;
 }
 
@@ -66,10 +68,10 @@ class LoginModal extends Component<Props, State> {
                             <button type="button" className="delete" aria-label="close" onClick={this.handleCloseModal}></button>
                         </header>
                         <section className="modal-card-body">
-                            {this.props.loginError !== null &&
+                            {this.props.localErrorMessage !== null && this.props.transactionType === AuthTransactionType.LOGIN &&
                                 <div className="notification is-danger">
                                     <button type="button" className="delete" onClick={this.handleNotificationClick}></button>
-                                    {this.props.loginError}
+                                    {this.props.localErrorMessage}
                                 </div>
                             }
                             <div className="field">
@@ -108,7 +110,7 @@ class LoginModal extends Component<Props, State> {
                             <div style={{ textAlign: "center" }}>No account yet? <a href="#" onClick={this.props.openSignupModal}>Sign up</a>.</div>
                         </section>
                         <footer className="modal-card-foot">
-                            {this.props.isLoginLoading ?
+                            {(this.props.isTransactionLoading && this.props.transactionType === AuthTransactionType.LOGIN)? 
                                 <button className="button is-link is-loading">Submit</button>
                                 :
                                 <button className="button is-link" onSubmit={this.handleSubmit}>Submit</button>
@@ -127,8 +129,9 @@ const mapStateToProps = (state: RootState, ownProps: ParentProps) => ({
     close: ownProps.close,
     openRecoverPasswordModalModal: ownProps.openRecoverPasswordModalModal,
     openSignupModal: ownProps.openSignupModal,
-    isLoginLoading: state.auth.isLoginLoading,
-    loginError: state.auth.loginError,
+    isTransactionLoading: state.auth.isTransactionLoading,
+    localErrorMessage: state.auth.localErrorMessage,
+    transactionType: state.auth.transactionType
 });
 
 export default connect(mapStateToProps)(LoginModal);

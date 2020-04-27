@@ -53,7 +53,6 @@ class DeleteAccount extends Component<Props, State> {
 }
 
 const mapStateToProps = (state: RootState) => ({
-    isUpdateEmailLoading: state.auth.isUpdateEmailLoading,
     user: state.auth.user
 });
 

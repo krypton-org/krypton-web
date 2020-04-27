@@ -6,6 +6,7 @@ import { RootState } from '../../redux/Root';
 import Form from '../utils/Form'
 import { recoverPassword, removeModalsErrorMessages } from '../../redux/actions/AuthActions';
 import { Dispatch } from "redux";
+import { AuthTransactionType } from '../../redux/states/AuthState';
 
 interface ParentProps {
     isActive: boolean;
@@ -13,8 +14,9 @@ interface ParentProps {
 }
 
 interface ReduxProps {
-    isRecoverPasswordLoading: boolean;
-    recoverPasswordError: string | null;
+    isTransactionLoading: boolean,
+    localErrorMessage: string | null,
+    transactionType: AuthTransactionType | null,
     dispatch: Dispatch<any>;
 }
 
@@ -55,10 +57,10 @@ class RecoverPasswordsModal extends Component<Props, State> {
                         <button type="button" className="delete" aria-label="close" onClick={this.props.close}></button>
                     </header>
                     <section className="modal-card-body">
-                        {this.props.recoverPasswordError !== null &&
+                        {this.props.localErrorMessage !== null && this.props.transactionType === AuthTransactionType.RECOVER_PASSWORD &&
                             <div className="notification is-danger">
                                 <button type="button" className="delete" onClick={this.handleNotificationClick}></button>
-                                {this.props.recoverPasswordError}
+                                {this.props.localErrorMessage}
                             </div>
                         }
                         <div>
@@ -84,7 +86,7 @@ class RecoverPasswordsModal extends Component<Props, State> {
                         </div>
                     </section>
                     <footer className="modal-card-foot">
-                        {this.props.isRecoverPasswordLoading ?
+                        {this.props.isTransactionLoading && this.props.transactionType === AuthTransactionType.RECOVER_PASSWORD?
                             <button className="button is-link is-loading">Submit</button>
                             :
                             <button className="button is-link" onSubmit={this.handleSubmit}>Submit</button>
@@ -100,8 +102,9 @@ class RecoverPasswordsModal extends Component<Props, State> {
 const mapStateToProps = (state: RootState, ownProps: ParentProps) => ({
     isActive: ownProps.isActive,
     close: ownProps.close,
-    isRecoverPasswordLoading: state.auth.isRecoverPasswordLoading,
-    recoverPasswordError: state.auth.recoverPasswordError,
+    isTransactionLoading: state.auth.isTransactionLoading,
+    localErrorMessage: state.auth.localErrorMessage,
+    transactionType: state.auth.transactionType
 });
 
 export default connect(mapStateToProps)(RecoverPasswordsModal);

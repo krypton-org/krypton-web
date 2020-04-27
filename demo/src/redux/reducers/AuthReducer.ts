@@ -1,27 +1,14 @@
 import Krypton from '@krypton-org/krypton-web';
-import AuthState from '../states/AuthState';
+import AuthState, { AuthTransactionType } from '../states/AuthState';
 
 const initialState: AuthState = {
   user: null,
   krypton: new Krypton("https://nusid.net/krypton-auth"),
   isLoggedIn: false,
-  isLoginLoading: false,
-  loginError: null,
-  isLoginSuccess: false,
-  isRegisterLoading: false,
-  registerError: null,
-  isRegisterSuccess: false,
-  isCheckLoginStateLoading: false,
-  isRecoverPasswordLoading: false,
-  recoverPasswordError: null,
-  isRecoverPasswordSuccess: false,
-  isChangePasswordLoading: false,
-  isChangePasswordSuccess: false,
-  isDeleteAccountLoading: false,
-  isDeleteAccountSuccess: false,
-  deleteAccountError: null,
-  isUpdateEmailLoading: false,
-  isUpdateEmailSuccess: false,
+  isTransactionLoading: false,
+  isTransactionSuccess: false,
+  localErrorMessage: null,
+  transactionType: null,
 };
 
 export default function userReducer(
@@ -32,8 +19,9 @@ export default function userReducer(
     case 'LOGIN_BEGIN':
       return {
         ...state,
-        isLoginLoading: true,
-        isLoginSuccess: false
+        isTransactionLoading: true,
+        isTransactionSuccess: false,
+        transactionType: AuthTransactionType.LOGIN
       }
 
     case 'LOGIN_END':
@@ -41,67 +29,70 @@ export default function userReducer(
         ...state,
         isLoggedIn: true,
         user: action.payload.user,
-        isLoginLoading: false,
-        isLoginSuccess: true,
-        loginError: null
+        isTransactionLoading: false,
+        isTransactionSuccess: true,
+        localErrorMessage: null,
       }
     case 'LOGIN_FAILURE':
       return {
         ...state,
-        isLoginLoading: false,
-        loginError: action.payload.error
+        isTransactionLoading: false,
+        localErrorMessage: action.payload.error,
       }
 
     case 'REGISTER_BEGIN':
       return {
         ...state,
-        isRegisterLoading: true,
-        isRegisterSuccess: false
+        isTransactionLoading: true,
+        isTransactionSuccess: false,
+        transactionType: AuthTransactionType.REGISTER
       }
 
     case 'REGISTER_END':
       return {
         ...state,
-        isRegisterLoading: false,
-        isRegisterSuccess: true,
-        registerError: null
+        isTransactionLoading: false,
+        isTransactionSuccess: true,
+        localErrorMessage: null,
       }
     case 'REGISTER_FAILURE':
       return {
         ...state,
-        isRegisterLoading: false,
-        registerError: action.payload.error
+        isTransactionLoading: false,
+        localErrorMessage: action.payload.error,
       }
     case 'RECOVER_PASSWORD_BEGIN':
       return {
         ...state,
-        isRecoverPasswordLoading: true,
-        isRecoverPasswordSuccess: false
+        isTransactionLoading: true,
+        isTransactionSuccess: false,
+        transactionType: AuthTransactionType.RECOVER_PASSWORD
       }
 
     case 'RECOVER_PASSWORD_END':
       return {
         ...state,
-        isRecoverPasswordLoading: false,
-        isRecoverPasswordSuccess: true
+        isTransactionLoading: false,
+        isTransactionSuccess: true,
       }
     case 'RECOVER_PASSWORD_FAILURE':
       return {
         ...state,
-        isRecoverPasswordLoading: false,
-        recoverPasswordError: action.payload.error
+        isTransactionLoading: false,
+        localErrorMessage: action.payload.error,
       }
     case 'CHECK_LOGIN_STATE_BEGIN':
       return {
         ...state,
-        isCheckLoginStateLoading: true
+        isTransactionLoading: true,
+        transactionType: AuthTransactionType.CHECK_LOGIN_STATE
       }
     case 'CHECK_LOGIN_STATE_END':
       return {
         ...state,
         isLoggedIn: action.payload.isLoggedIn,
         user: action.payload.user,
-        isCheckLoginStateLoading: false,
+        isTransactionLoading: false,
       }
     case 'LOG_OUT': {
       return {
@@ -113,71 +104,72 @@ export default function userReducer(
     case 'REMOVE_MODALS_ERROR_MESSAGES': {
       return {
         ...state,
-        registerError: null,
-        loginError: null,
-        deleteAccountError: null
+        localErrorMessage: null,
       }
     }
     case 'CHANGE_PASSWORD_BEGIN':
       return {
         ...state,
-        isChangePasswordLoading: true,
-        isChangePasswordSuccess: false
+        isTransactionLoading: true,
+        isTransactionSuccess: false,
+        transactionType: AuthTransactionType.CHANGE_PASSWORD
       };
 
     case 'CHANGE_PASSWORD_END':
       return {
         ...state,
-        isChangePasswordLoading: false,
-        isChangePasswordSuccess: true,
+        isTransactionLoading: false,
+        isTransactionSuccess: true,
       };
 
 
     case 'CHANGE_PASSWORD_FAILURE':
       return {
         ...state,
-        isChangePasswordLoading: false,
-        isChangePasswordSuccess: false,
+        isTransactionLoading: false,
+        isTransactionSuccess: false,
       };
 
 
     case 'DELETE_ACCOUNT_BEGIN':
       return {
         ...state,
-        isDeleteAccountLoading: true,
-        isDeleteAccountSuccess: false
+        isTransactionLoading: true,
+        isTransactionSuccess: false,
+        transactionType: AuthTransactionType.DELETE_ACCOUNT
       };
 
 
     case 'DELETE_ACCOUNT_END':
       return {
         ...state,
-        isDeleteAccountLoading: false,
-        isDeleteAccountSuccess: true,
-        deleteAccountError: null
+        isTransactionLoading: false,
+        isTransactionSuccess: true,
+        localErrorMessage: null,
       };
 
 
     case 'DELETE_ACCOUNT_FAILURE':
       return {
         ...state,
-        isDeleteAccountLoading: false,
-        deleteAccountError: action.payload.error
+        isTransactionLoading: false,
+        localErrorMessage: action.payload.error,
       };
 
 
     case 'UPDATE_EMAIL_BEGIN':
       return {
         ...state,
-        isUpdateEmailLoading: true,
-        isUpdateEmailSuccess: false
+        isTransactionLoading: true,
+        isTransactionSuccess: false,
+        transactionType: AuthTransactionType.UPDATE_EMAIL
       };
 
     case 'UPDATE_EMAIL_END':
       return {
         ...state,
-        isUpdateEmailLoading: false,
-        isUpdateEmailSuccess: true,
+        isTransactionLoading: false,
+        isTransactionSuccess: true,
         user: action.payload.user,
       }
 
@@ -185,7 +177,7 @@ export default function userReducer(
     case 'UPDATE_EMAIL_FAILURE':
       return {
         ...state,
-        isUpdateEmailLoading: false,
+        isTransactionLoading: false,
       };
 
     default:

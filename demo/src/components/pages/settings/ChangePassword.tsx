@@ -7,10 +7,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLock, faCheck, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { isPasswordValid } from '../../utils/Utils';
 import { changePassword } from '../../../redux/actions/AuthActions';
+import { AuthTransactionType } from '../../../redux/states/AuthState';
 
 interface Props {
     dispatch: Dispatch<any>;
-    isChangePasswordLoading: boolean;
+    isTransactionLoading: boolean;
+    transactionType: AuthTransactionType | null;
 }
 
 interface State {
@@ -50,7 +52,7 @@ class ChangePassword extends Component<Props, State> {
 
         const isDisabled = !isPasswordValid(this.state.newPassword) && this.state.actualPassword !== '';
         let submitClass = 'button is-link '
-        if (this.props.isChangePasswordLoading) {
+        if (this.props.isTransactionLoading && this.props.transactionType === AuthTransactionType.CHANGE_PASSWORD) {
             submitClass += 'is-loading'
         }
         return (
@@ -115,7 +117,8 @@ class ChangePassword extends Component<Props, State> {
 }
 
 const mapStateToProps = (state: RootState) => ({
-    isChangePasswordLoading: state.auth.isChangePasswordLoading,
+    isTransactionLoading: state.auth.isTransactionLoading,
+    transactionType: state.auth.transactionType
 });
 
 export default connect(mapStateToProps)(ChangePassword);

@@ -16,9 +16,11 @@ import {
 import Settings from './pages/settings/Index';
 import Todos from './pages/todos/Index';
 import PrivateRoute from './utils/PrivateRoute';
+import { AuthTransactionType } from '../redux/states/AuthState';
 
 interface Props {
-  isCheckLoginStateLoading: boolean
+  isTransactionLoading: boolean
+  transactionType: AuthTransactionType | null;
   dispatch: Dispatch<any>;
 }
 
@@ -29,7 +31,7 @@ class App extends Component<Props> {
   }
 
   render() {
-    if (this.props.isCheckLoginStateLoading) {
+    if (this.props.isTransactionLoading && this.props.transactionType === AuthTransactionType.CHECK_LOGIN_STATE) {
       const style: React.CSSProperties = {
         position: "fixed", /* or absolute */
         top: "50%",
@@ -37,7 +39,6 @@ class App extends Component<Props> {
       }
       return <h1 style={style}>Loading...</h1>
     } else {
-
       return (
         <Router>
           <NavBar />
@@ -59,7 +60,8 @@ class App extends Component<Props> {
 }
 
 const mapStateToProps = (state: RootState) => ({
-  isCheckLoginStateLoading: state.auth.isCheckLoginStateLoading,
+  isTransactionLoading: state.auth.isTransactionLoading,
+  transactionType: state.auth.transactionType
 });
 
 export default connect(mapStateToProps)(App);

@@ -13,12 +13,8 @@ import {
 interface Props {
     isLoggedIn: boolean;
     user: { email: string, _id: string, verified: boolean } | null | undefined;
-    isRegisterSuccess: boolean,
-    isLoginSuccess: boolean,
-    isRecoverPasswordSuccess: boolean,
-    isLoginLoading: boolean,
-    isRegisterLoading: boolean,
-    isRecoverPasswordLoading: boolean,
+    isTransactionSuccess: boolean,
+    isTransactionLoading: boolean,
     dispatch: Dispatch<any>
 }
 
@@ -61,13 +57,7 @@ class NavBar extends Component<Props & RouteComponentProps, State> {
     }
 
     componentDidUpdate(prevProps: any) {
-        if (prevProps.isLoginLoading && !this.props.isLoginLoading && this.props.isLoginSuccess) {
-            this.closeModals();
-        }
-        if (prevProps.isRegisterLoading && !this.props.isRegisterLoading && this.props.isRegisterSuccess) {
-            this.closeModals();
-        }
-        if (prevProps.isRecoverPasswordLoading && !this.props.isRecoverPasswordLoading && this.props.isRecoverPasswordSuccess) {
+        if (prevProps.isTransactionLoading && !this.props.isTransactionLoading && this.props.isTransactionSuccess) {
             this.closeModals();
         }
     }
@@ -147,12 +137,9 @@ class NavBar extends Component<Props & RouteComponentProps, State> {
 const mapStateToProps = (state: RootState) => ({
     isLoggedIn: state.auth.isLoggedIn,
     user: state.auth.user,
-    isRegisterSuccess: state.auth.isRegisterSuccess,
-    isLoginSuccess: state.auth.isLoginSuccess,
-    isRecoverPasswordSuccess: state.auth.isRecoverPasswordSuccess,
-    isLoginLoading: state.auth.isLoginLoading,
-    isRegisterLoading: state.auth.isRegisterLoading,
-    isRecoverPasswordLoading: state.auth.isRecoverPasswordLoading,
+    isTransactionSuccess: state.auth.isTransactionSuccess,
+    isTransactionLoading: state.auth.isTransactionLoading,
+    transactionType: state.auth.transactionType
 });
 
 export default withRouter(connect(mapStateToProps)(NavBar));
