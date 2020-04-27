@@ -1,14 +1,14 @@
-export enum Severity { 
-    SECONDARY = 'secondary', 
-    SUCCESS= 'success', 
-    INFO = 'info', 
-    WARNING = 'warning', 
-    DANGER = 'danger' 
+export enum Severity {
+    SECONDARY = 'secondary',
+    SUCCESS = 'success',
+    INFO = 'info',
+    WARNING = 'warning',
+    DANGER = 'danger',
 }
 
 export interface Notification {
     message: string;
-    title: string
+    title: string;
     type: Severity;
     date: Date;
 }

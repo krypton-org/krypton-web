@@ -1,50 +1,61 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
+import { faLock } from '@fortawesome/free-solid-svg-icons';
+import Form from '../utils/Form';
 import { connect } from 'react-redux';
 import { RootState } from '../../redux/Root';
-import Form from '../utils/Form';
-import { recoverPassword, removeModalsErrorMessages } from '../../redux/actions/AuthActions';
+import { removeModalsErrorMessages, deleteAccount } from '../../redux/actions/AuthActions';
 import { Dispatch } from 'redux';
+import { withRouter, RouteComponentProps } from 'react-router-dom';
 import { AuthTransactionType } from '../../redux/states/AuthState';
 
 interface ParentProps {
     isActive: boolean;
-    close: (e: React.MouseEvent<Element, MouseEvent>) => void;
+    close: (e?: React.MouseEvent<Element, MouseEvent>) => void;
 }
 
 interface ReduxProps {
     isTransactionLoading: boolean;
     localErrorMessage: string | null;
     transactionType: AuthTransactionType | null;
+    isTransactionSuccess: boolean;
     dispatch: Dispatch<any>;
 }
 
 interface State {
-    email: string;
+    password: string;
 }
 
-interface Props extends ParentProps, ReduxProps {}
+interface Props extends ParentProps, ReduxProps, RouteComponentProps {}
 
-class RecoverPasswordsModal extends Component<Props, State> {
+class DeleteAccountModal extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
-        this.state = {
-            email: '',
-        };
+        this.state = { password: '' };
     }
 
-    handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>): void | undefined => {
-        this.setState({ email: event.target.value });
+    handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>): void | undefined => {
+        this.setState({ ...this.state, password: event.target.value });
     };
 
     handleSubmit = (event?: React.FormEvent<HTMLButtonElement>): void | undefined => {
-        this.props.dispatch(recoverPassword(this.state.email));
+        this.props.dispatch(deleteAccount(this.state.password));
     };
 
     handleNotificationClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void | undefined => {
         this.props.dispatch(removeModalsErrorMessages());
     };
+
+    handleCloseModal = (e?: React.MouseEvent<Element, MouseEvent>): void => {
+        this.props.dispatch(removeModalsErrorMessages());
+        this.props.close();
+    };
+
+    componentDidUpdate(prevProps: Props) {
+        if (this.props.isTransactionSuccess && this.props.transactionType === AuthTransactionType.DELETE_ACCOUNT) {
+            this.props.history.push('/');
+        }
+    }
 
     render() {
         return (
@@ -53,17 +64,17 @@ class RecoverPasswordsModal extends Component<Props, State> {
                 <div className="modal-card">
                     <Form onSubmit={this.handleSubmit}>
                         <header className="modal-card-head">
-                            <p className="modal-card-title">Recover your password</p>
+                            <p className="modal-card-title">Delete account</p>
                             <button
                                 type="button"
                                 className="delete"
                                 aria-label="close"
-                                onClick={this.props.close}
+                                onClick={this.handleCloseModal}
                             ></button>
                         </header>
                         <section className="modal-card-body">
                             {this.props.localErrorMessage !== null &&
-                                this.props.transactionType === AuthTransactionType.RECOVER_PASSWORD && (
+                                this.props.transactionType === AuthTransactionType.DELETE_ACCOUNT && (
                                     <div className="notification is-danger">
                                         <button
                                             type="button"
@@ -73,38 +84,32 @@ class RecoverPasswordsModal extends Component<Props, State> {
                                         {this.props.localErrorMessage}
                                     </div>
                                 )}
-                            <div>
-                                Enter your address below, and we’ll email you instructions for setting a new password.
-                            </div>
-                            <div className="field" style={{ marginTop: '10px' }}>
-                                <label className="label">Email</label>
+                            <div className="field">
+                                <label className="label">Enter your password</label>
                                 <div className="control has-icons-left has-icons-right">
                                     <input
                                         className="input"
-                                        type="email"
-                                        placeholder="Email"
-                                        value={this.state.email}
-                                        onChange={this.handleEmailChange}
+                                        type="password"
+                                        placeholder="Password"
+                                        value={this.state.password}
+                                        onChange={this.handlePasswordChange}
                                     />
                                     <span className="icon is-small is-left">
-                                        <i className="fas fa-envelope"></i>
-                                    </span>
-                                    <span className="icon is-small is-left">
-                                        <FontAwesomeIcon icon={faEnvelope} />
+                                        <FontAwesomeIcon icon={faLock} />
                                     </span>
                                 </div>
                             </div>
                         </section>
                         <footer className="modal-card-foot">
                             {this.props.isTransactionLoading &&
-                            this.props.transactionType === AuthTransactionType.RECOVER_PASSWORD ? (
+                            this.props.transactionType === AuthTransactionType.DELETE_ACCOUNT ? (
                                 <button className="button is-link is-loading">Submit</button>
                             ) : (
                                 <button className="button is-link" onSubmit={this.handleSubmit}>
                                     Submit
                                 </button>
                             )}
-                            <button className="button" type="button" onClick={this.props.close}>
+                            <button className="button" type="button" onClick={this.handleCloseModal}>
                                 Cancel
                             </button>
                         </footer>
@@ -121,6 +126,6 @@ const mapStateToProps = (state: RootState, ownProps: ParentProps) => ({
     isTransactionLoading: state.auth.isTransactionLoading,
     localErrorMessage: state.auth.localErrorMessage,
     transactionType: state.auth.transactionType,
+    isTransactionSuccess: state.auth.isTransactionSuccess,
 });
-
-export default connect(mapStateToProps)(RecoverPasswordsModal);
+export default withRouter(connect(mapStateToProps)(DeleteAccountModal));
