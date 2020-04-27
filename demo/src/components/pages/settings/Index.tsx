@@ -6,12 +6,10 @@ import DeleteAccount from './DeleteAccount';
 export default () => {
     return (
         <div className="container">
-                <h1 className="title">
-                    Settings
-                </h1>
-                <UpdateEmail />
-                <ChangePassword />
-                <DeleteAccount />
+            <h1 className="title">Settings</h1>
+            <UpdateEmail />
+            <ChangePassword />
+            <DeleteAccount />
         </div>
     );
 };

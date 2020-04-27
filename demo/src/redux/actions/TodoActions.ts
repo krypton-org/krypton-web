@@ -1,159 +1,141 @@
-import { notify } from "./NotifyActions";
-import { Severity } from "../states/NotifState";
-import { RootState } from "../Root";
+import { notify } from './NotifyActions';
+import { Severity } from '../states/NotifState';
+import { RootState } from '../Root';
+import { TodoTransactionType, Todo } from '../states/TodoState';
 
 export const addTodo = (text: string) => {
     return (dispatch: any, getState: () => RootState) => {
         (async () => {
-            dispatch(addTodoBegin());
+            dispatch(transactionBegin(TodoTransactionType.ADD_TODO));
             try {
                 const graphQLQuery = addTodoQuery(text, getState().auth.krypton.getUser()._id);
                 const res = await sendRequest(getState().auth.krypton.getAuthorizationHeader(), graphQLQuery);
                 if (res.data) {
-                    dispatch(addTodoSuccess(res.data.todoCreateOne.record));
+                    const todo = res.data.todoCreateOne.record;
+                    dispatch(transactionSuccess([todo, ...getState().todo.list]));
                 } else {
                     throw new Error('Transaction failed');
                 }
             } catch (err) {
-                dispatch(addTodoFailure());
-                dispatch(notify({
-                    message: err.message,
-                    date: new Date(),
-                    type: Severity.DANGER,
-                    title: 'Error'
-                }));
+                dispatch(transactionFailure());
+                dispatch(
+                    notify({
+                        message: err.message,
+                        date: new Date(),
+                        type: Severity.DANGER,
+                        title: 'Error',
+                    }),
+                );
             }
         })();
-    }
+    };
 };
 
 export const deleteTodo = (todoId: string) => {
     return (dispatch: any, getState: () => RootState) => {
         (async () => {
-            dispatch(deleteTodoBegin());
+            dispatch(transactionBegin(TodoTransactionType.DELETE_TODO));
             try {
                 const graphQLQuery = deleteTodoQuery(todoId);
                 const res = await sendRequest(getState().auth.krypton.getAuthorizationHeader(), graphQLQuery);
                 if (res.data) {
-                    dispatch(deleteTodoSuccess(res.data.todoRemoveById.record));
+                    const todos = getState().todo.list.filter(
+                        (todo) => todo._id !== res.data.todoRemoveById.record._id,
+                    );
+                    dispatch(transactionSuccess(todos));
                 } else {
                     throw new Error('Transaction failed');
                 }
             } catch (err) {
-                dispatch(deleteTodoFailure());
-                dispatch(notify({
-                    message: err.message,
-                    date: new Date(),
-                    type: Severity.DANGER,
-                    title: 'Error'
-                }));
+                dispatch(transactionFailure());
+                dispatch(
+                    notify({
+                        message: err.message,
+                        date: new Date(),
+                        type: Severity.DANGER,
+                        title: 'Error',
+                    }),
+                );
             }
         })();
-    }
-}
+    };
+};
 
 export const completeTodo = (todoId: string) => {
     return (dispatch: any, getState: () => RootState) => {
         (async () => {
-            dispatch(updateTodoBegin());
+            dispatch(transactionBegin(TodoTransactionType.UPDATE_TODO));
             try {
                 const graphQLQuery = completeTodoQuery(todoId);
                 const res = await sendRequest(getState().auth.krypton.getAuthorizationHeader(), graphQLQuery);
                 if (res.data) {
-                    dispatch(updateTodoSuccess(res.data.todoUpdateById.record));
+                    const todo = res.data.todoUpdateById.record;
+                    dispatch(
+                        transactionSuccess(
+                            getState().todo.list.map((currTodo) => (currTodo._id === todo._id ? todo : currTodo)),
+                        ),
+                    );
                 } else {
                     throw new Error('Transaction failed');
                 }
             } catch (err) {
-                dispatch(updateTodoFailure());
-                dispatch(notify({
-                    message: err.message,
-                    date: new Date(),
-                    type: Severity.DANGER,
-                    title: 'Error'
-                }));
+                dispatch(transactionFailure());
+                dispatch(
+                    notify({
+                        message: err.message,
+                        date: new Date(),
+                        type: Severity.DANGER,
+                        title: 'Error',
+                    }),
+                );
             }
         })();
-    }
-}
+    };
+};
 
 export const fetchTodo = () => {
     return (dispatch: any, getState: () => RootState) => {
         (async () => {
-            dispatch(fetchTodoBegin());
+            dispatch(transactionBegin(TodoTransactionType.FETCH_TODO));
             try {
                 const graphQLQuery = fetchTodoQuery(getState().auth.krypton.getUser()._id);
                 const res = await sendRequest(getState().auth.krypton.getAuthorizationHeader(), graphQLQuery);
                 if (res.data) {
-                    dispatch(fetchTodoSuccess(res.data.todoMany));
+                    dispatch(transactionSuccess(res.data.todoMany));
                 } else {
                     throw new Error('Transaction failed');
                 }
             } catch (err) {
-                dispatch(fetchTodoFailure());
-                dispatch(notify({
-                    message: err.message,
-                    date: new Date(),
-                    type: Severity.DANGER,
-                    title: 'Error'
-                }));
+                dispatch(transactionFailure());
+                dispatch(
+                    notify({
+                        message: err.message,
+                        date: new Date(),
+                        type: Severity.DANGER,
+                        title: 'Error',
+                    }),
+                );
             }
         })();
-    }
-}
+    };
+};
 
-export const addTodoBegin = () => ({
-    type: 'ADD_TODO_BEGIN'
+export const TODO_TRANSACTION_BEGIN = 'TODO_TRANSACTION_BEGIN';
+const transactionBegin = (transactionType: TodoTransactionType) => ({
+    type: TODO_TRANSACTION_BEGIN,
+    payload: { transactionType },
 });
 
-export const addTodoSuccess = (todo: any) => ({
-    type: 'ADD_TODO_SUCCESS',
-    payload: { todo }
+export const TODO_TRANSACTION_SUCCESS = 'TODO_TRANSACTION_SUCCESS';
+const transactionSuccess = (todos: Todo[]) => ({
+    type: TODO_TRANSACTION_SUCCESS,
+    payload: { todos },
 });
 
-export const addTodoFailure = () => ({
-    type: 'ADD_TODO_FAILURE',
+export const TODO_TRANSACTION_FAILURE = 'TODO_TRANSACTION_FAILURE';
+const transactionFailure = () => ({
+    type: TODO_TRANSACTION_FAILURE,
 });
-
-export const deleteTodoBegin = () => ({
-    type: 'DELETE_TODO_BEGIN'
-});
-
-export const deleteTodoSuccess = (todoDeleted: any) => ({
-    type: 'DELETE_TODO_SUCCESS',
-    payload: { todo: todoDeleted }
-});
-
-export const deleteTodoFailure = () => ({
-    type: 'DELETE_TODO_FAILURE',
-});
-
-export const updateTodoBegin = () => ({
-    type: 'UPDATE_TODO_BEGIN'
-});
-
-export const updateTodoSuccess = (todoDeleted: any) => ({
-    type: 'UPDATE_TODO_SUCCESS',
-    payload: { todo: todoDeleted }
-});
-
-export const updateTodoFailure = () => ({
-    type: 'UPDATE_TODO_FAILURE',
-});
-
-export const fetchTodoBegin = () => ({
-    type: 'FETCH_TODO_BEGIN'
-});
-
-export const fetchTodoSuccess = (todos: any) => ({
-    type: 'FETCH_TODO_SUCCESS',
-    payload: { todos }
-});
-
-export const fetchTodoFailure = () => ({
-    type: 'FETCH_TODO_FAILURE',
-});
-
 
 async function sendRequest(authorizationHeader: string, query: any): Promise<any> {
     const headers: any = {
@@ -166,12 +148,12 @@ async function sendRequest(authorizationHeader: string, query: any): Promise<any
         method: 'POST',
         headers,
         credentials: 'include',
-        body: JSON.stringify(query)
-    }).then(res => res.json());
+        body: JSON.stringify(query),
+    }).then((res) => res.json());
     return res;
 }
 
-const addTodoQuery = (text: string, userId: string): { query: string, variables: { text: string, userId: string } } => {
+const addTodoQuery = (text: string, userId: string): { query: string; variables: { text: string; userId: string } } => {
     return {
         query: `mutation todoCreateOne($text: String!, $userId: String!) {
             todoCreateOne(record: {text: $text, userId: $userId}) {
@@ -183,11 +165,11 @@ const addTodoQuery = (text: string, userId: string): { query: string, variables:
                 }
             }
         }`,
-        variables: { text, userId }
-    }
-}
+        variables: { text, userId },
+    };
+};
 
-const deleteTodoQuery = (id: string): { query: string, variables: { id: string } } => {
+const deleteTodoQuery = (id: string): { query: string; variables: { id: string } } => {
     return {
         query: `mutation todoRemoveById($id: MongoID!){
             todoRemoveById(_id: $id){
@@ -199,11 +181,11 @@ const deleteTodoQuery = (id: string): { query: string, variables: { id: string }
                 }
             }
         }`,
-        variables: { id }
-    }
-}
+        variables: { id },
+    };
+};
 
-const completeTodoQuery = (id: string): { query: string, variables: { id: string } } => {
+const completeTodoQuery = (id: string): { query: string; variables: { id: string } } => {
     return {
         query: `mutation todoUpdateById($id: MongoID!){
             todoUpdateById(record:{_id: $id, isCompleted: true}){
@@ -215,11 +197,11 @@ const completeTodoQuery = (id: string): { query: string, variables: { id: string
                 }
             }
         }`,
-        variables: { id }
-    }
+        variables: { id },
+    };
 };
 
-const fetchTodoQuery = (userId: string): { query: string, variables: { userId: string } } => {
+const fetchTodoQuery = (userId: string): { query: string; variables: { userId: string } } => {
     return {
         query: `query todoMany($userId: String!){
             todoMany(filter: {userId: $userId}){
@@ -229,6 +211,6 @@ const fetchTodoQuery = (userId: string): { query: string, variables: { userId: s
                 _id
             }
         }`,
-        variables: { userId }
-    }
-}
+        variables: { userId },
+    };
+};

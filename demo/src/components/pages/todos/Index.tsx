@@ -6,21 +6,18 @@ import TodoTable from './TodoTable';
 import { fetchTodo } from '../../../redux/actions/TodoActions';
 
 interface Props {
-    dispatch: Dispatch<any>
+    dispatch: Dispatch<any>;
 }
 
 class Todos extends Component<Props> {
-    
-    componentWillMount(){
+    componentWillMount() {
         this.props.dispatch(fetchTodo());
     }
 
     render() {
         return (
             <div className="container">
-                <h1 className="title">
-                    Todos
-                </h1>
+                <h1 className="title">Todos</h1>
                 <TodoAddForm />
                 <TodoTable />
             </div>

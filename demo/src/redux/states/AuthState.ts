@@ -2,13 +2,13 @@ import Krypton from '@krypton-org/krypton-web';
 
 export enum AuthTransactionType {
     CHECK_LOGIN_STATE,
-    LOGIN, 
-    REGISTER, 
+    LOGIN,
+    REGISTER,
     UPDATE_EMAIL,
     DELETE_ACCOUNT,
     CHANGE_PASSWORD,
     RECOVER_PASSWORD,
-    LOGOUT
+    LOGOUT,
 }
 
 export default interface AuthState {

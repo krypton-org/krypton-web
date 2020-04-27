@@ -6,34 +6,36 @@ import { Todo } from '../../../redux/states/TodoState';
 import TodoComponent from './Todo';
 interface Props {
     dispatch: Dispatch<any>;
-    list: Todo[]
+    list: Todo[];
 }
 
-interface State {
-
-}
+interface State {}
 
 class TodoTable extends Component<Props, State> {
     render() {
-        const todos = this.props.list.map(todo => <TodoComponent data={todo}></TodoComponent>)
+        const todos = this.props.list.map((todo) => <TodoComponent data={todo}></TodoComponent>);
         return (
             <table className="table is-fullwidth">
                 <thead>
                     <tr>
-                        <th style={{ width: "5%" }}></th>
-                        <th className="is-two-fifths" style={{ width: "60%" }}>Todo</th>
-                        <th style={{ width: "20%" }}>Date</th>
-                        <th className="has-text-centered" style={{ width: "15%" }}>Status</th>
+                        <th className="has-text-centered" style={{ width: '15%' }}>
+                            Status
+                        </th>
+                        <th className="is-two-fifths" style={{ width: '60%' }}>
+                            Todo
+                        </th>
+                        <th style={{ width: '20%' }}>Date</th>
+                        <th style={{ width: '5%' }}></th>
                     </tr>
                 </thead>
                 <tbody>{todos}</tbody>
             </table>
-        )
+        );
     }
 }
 
 const mapStateToProps = (state: RootState) => ({
-    list: state.todo.list
+    list: state.todo.list,
 });
 
 export default connect(mapStateToProps)(TodoTable);

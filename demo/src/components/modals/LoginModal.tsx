@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons'
-import Form from '../utils/Form'
-import { connect } from "react-redux";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
+import Form from '../utils/Form';
+import { connect } from 'react-redux';
 import { RootState } from '../../redux/Root';
 import { login, removeModalsErrorMessages } from '../../redux/actions/AuthActions';
-import { Dispatch } from "redux";
+import { Dispatch } from 'redux';
 import { AuthTransactionType } from '../../redux/states/AuthState';
 
 interface ParentProps {
@@ -22,7 +22,7 @@ interface ReduxProps {
     dispatch: Dispatch<any>;
 }
 
-interface Props extends ParentProps, ReduxProps { }
+interface Props extends ParentProps, ReduxProps {}
 
 interface State {
     email: string;
@@ -30,50 +30,59 @@ interface State {
 }
 
 class LoginModal extends Component<Props, State> {
-
     constructor(props: Props) {
         super(props);
-        this.state = { password: '', email: '' }
+        this.state = { password: '', email: '' };
     }
 
     handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>): void | undefined => {
-        this.setState({ ...this.state, email: event.target.value })
+        this.setState({ ...this.state, email: event.target.value });
     };
 
     handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>): void | undefined => {
-        this.setState({ ...this.state, password: event.target.value })
+        this.setState({ ...this.state, password: event.target.value });
     };
 
     handleSubmit = (event?: React.FormEvent<HTMLButtonElement>): void | undefined => {
         this.props.dispatch(login(this.state.email, this.state.password));
-    }
+    };
 
     handleNotificationClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void | undefined => {
         this.props.dispatch(removeModalsErrorMessages());
-    }
+    };
 
     handleCloseModal = (e?: React.MouseEvent<Element, MouseEvent>): void => {
         this.props.dispatch(removeModalsErrorMessages());
-        this.props.close()
-    }
+        this.props.close();
+    };
 
     render() {
         return (
-            <div className={this.props.isActive ? "modal is-active" : "modal"}>
+            <div className={this.props.isActive ? 'modal is-active' : 'modal'}>
                 <div className="modal-background"></div>
                 <div className="modal-card">
                     <Form onSubmit={this.handleSubmit}>
                         <header className="modal-card-head">
                             <p className="modal-card-title">Log in</p>
-                            <button type="button" className="delete" aria-label="close" onClick={this.handleCloseModal}></button>
+                            <button
+                                type="button"
+                                className="delete"
+                                aria-label="close"
+                                onClick={this.handleCloseModal}
+                            ></button>
                         </header>
                         <section className="modal-card-body">
-                            {this.props.localErrorMessage !== null && this.props.transactionType === AuthTransactionType.LOGIN &&
-                                <div className="notification is-danger">
-                                    <button type="button" className="delete" onClick={this.handleNotificationClick}></button>
-                                    {this.props.localErrorMessage}
-                                </div>
-                            }
+                            {this.props.localErrorMessage !== null &&
+                                this.props.transactionType === AuthTransactionType.LOGIN && (
+                                    <div className="notification is-danger">
+                                        <button
+                                            type="button"
+                                            className="delete"
+                                            onClick={this.handleNotificationClick}
+                                        ></button>
+                                        {this.props.localErrorMessage}
+                                    </div>
+                                )}
                             <div className="field">
                                 <label className="label">Email</label>
                                 <div className="control has-icons-left has-icons-right">
@@ -105,22 +114,35 @@ class LoginModal extends Component<Props, State> {
                                     </span>
                                 </div>
                             </div>
-                            <a href="#" onClick={this.props.openRecoverPasswordModalModal}>Password forgotten?</a>
+                            <a href="#" onClick={this.props.openRecoverPasswordModalModal}>
+                                Password forgotten?
+                            </a>
                             <hr />
-                            <div style={{ textAlign: "center" }}>No account yet? <a href="#" onClick={this.props.openSignupModal}>Sign up</a>.</div>
+                            <div style={{ textAlign: 'center' }}>
+                                No account yet?{' '}
+                                <a href="#" onClick={this.props.openSignupModal}>
+                                    Sign up
+                                </a>
+                                .
+                            </div>
                         </section>
                         <footer className="modal-card-foot">
-                            {(this.props.isTransactionLoading && this.props.transactionType === AuthTransactionType.LOGIN)? 
+                            {this.props.isTransactionLoading &&
+                            this.props.transactionType === AuthTransactionType.LOGIN ? (
                                 <button className="button is-link is-loading">Submit</button>
-                                :
-                                <button className="button is-link" onSubmit={this.handleSubmit}>Submit</button>
-                            }
-                            <button className="button" type="button" onClick={this.handleCloseModal}>Cancel</button>
+                            ) : (
+                                <button className="button is-link" onSubmit={this.handleSubmit}>
+                                    Submit
+                                </button>
+                            )}
+                            <button className="button" type="button" onClick={this.handleCloseModal}>
+                                Cancel
+                            </button>
                         </footer>
                     </Form>
-
                 </div>
-            </div>)
+            </div>
+        );
     }
 }
 
@@ -131,7 +153,7 @@ const mapStateToProps = (state: RootState, ownProps: ParentProps) => ({
     openSignupModal: ownProps.openSignupModal,
     isTransactionLoading: state.auth.isTransactionLoading,
     localErrorMessage: state.auth.localErrorMessage,
-    transactionType: state.auth.transactionType
+    transactionType: state.auth.transactionType,
 });
 
 export default connect(mapStateToProps)(LoginModal);

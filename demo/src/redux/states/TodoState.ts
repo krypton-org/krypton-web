@@ -1,11 +1,11 @@
-export enum TransactionType { 
-    ADD_TODO, 
-    DELETE_TODO, 
+export enum TodoTransactionType {
+    ADD_TODO,
+    DELETE_TODO,
     UPDATE_TODO,
     FETCH_TODO,
 }
 
-export interface Todo { 
+export interface Todo {
     text: string;
     isCompleted: boolean;
     date: Date;
@@ -15,6 +15,6 @@ export interface Todo {
 export default interface TodoState {
     isTransactionLoading: boolean;
     isTransactionSuccess: boolean;
-    transactionType: TransactionType | null;
-    list: Todo [];
+    transactionType: TodoTransactionType | null;
+    list: Todo[];
 }
