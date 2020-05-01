@@ -24,6 +24,8 @@ interface KryptonClientState {
     user: any;
 }
 
+const REFRESH_DELTA_TIME = 2 *60 *1000; // two minutes
+
 export default class KryptonClient {
     private endpoint: string;
     private state: KryptonClientState;
@@ -37,11 +39,19 @@ export default class KryptonClient {
 
     public getUser = (): any => this.state.user;
 
-    public getToken = (): string => this.state.token;
+    public getToken = async (): Promise<string> => {
+        const now = new Date();
+        if (this.state.token && this.state.expiryDate && this.state.expiryDate.getTime() < now.getTime() + REFRESH_DELTA_TIME) {
+            await this.refreshToken();
+        }
+        return this.state.token;
+    }
 
     public getTokenExpiryDate = (): Date => this.state.expiryDate;
 
-    public getAuthorizationHeader = (): string => 'Bearer ' + this.state.token;
+    public getAuthorizationHeader = async (): Promise<string> => {
+        return 'Bearer ' + await this.getToken();
+    }
 
     public refreshToken = async (): Promise<void> => {
         await this.query(new RefreshQuery(), false, true);
@@ -61,9 +71,8 @@ export default class KryptonClient {
         }
     }
 
-    public register = async (email: string, password: string, fields?: any): Promise<boolean> => {
+    public register = async (email: string, password: string, fields?: any): Promise<void> => {
         let data: { register: boolean } = await this.query(new RegisterQuery({ fields: { email, password, ...fields } }), false);
-        return data.register;
     }
 
     public login = async (email: string, password: string): Promise<any> => {
@@ -80,14 +89,17 @@ export default class KryptonClient {
         return this.state.user;
     }
 
-    public delete = async (password: string): Promise<boolean> => {
-        let data: { deleteMe: boolean } = await this.query(new DeleteQuery({ password }), true);
-        return data.deleteMe;
+    public delete = async (password: string): Promise<void> => {
+        await this.query(new DeleteQuery({ password }), true);
+        this.setState({
+            user:{}, 
+            expiryDate: new Date(0),
+            token: ''
+        });
     }
 
-    public recoverPassword = async (email: string): Promise<boolean> => {
-        let data: { sendPasswordRecoveryEmail: boolean } = await this.query(new SendPasswordRecoveryQuery({ email }), true);
-        return data.sendPasswordRecoveryEmail;
+    public recoverPassword = async (email: string): Promise<void> => {
+        await this.query(new SendPasswordRecoveryQuery({ email }), true);
     }
 
     public isEmailAvailable = async (email: string): Promise<boolean> => {
@@ -95,14 +107,13 @@ export default class KryptonClient {
         return data.emailAvailable;
     }
 
-    public changePassword = async (actualPassword: string, newPassword: string,): Promise<boolean> => {
-        let data: { updateMe: any } = await this.query(new UpdateQuery(
+    public changePassword = async (actualPassword: string, newPassword: string,): Promise<void> => {
+        await this.query(new UpdateQuery(
             { fields: { 
                 password: newPassword,
                 previousPassword: actualPassword
             } 
         }), true);
-        return !!data.updateMe;
     }
 
     public sendVerificationEmail = async () => {

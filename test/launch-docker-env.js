@@ -22,10 +22,12 @@ const exec = promisify(execSync);
         await exec('docker network rm krypton-auth-net-test');
     } catch (err){ }
 
-    console.log("Docker cleaned up")
+    console.log("Docker cleaned up");
 
+    // Launch network
     await exec("docker network create krypton-auth-net-test");
 
+    // Launch MongoDB
     await exec(`docker run \
         --detach \
         --name krypton-auth-db-test \
@@ -33,12 +35,14 @@ const exec = promisify(execSync);
         mongo
     `);
 
+    // Launch Krypton
     await exec(`docker run \
         --detach \
         --name krypton-auth-test \
         --network krypton-auth-net-test \
         --env MONGODB_URI="mongodb://krypton-auth-db-test:27017/users" \
         --publish 5000:5000 \
+        -v `+__dirname+`:/krypton-vol \
         kryptonorg/krypton-auth
     `);
 })();

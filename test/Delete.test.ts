@@ -1,5 +1,4 @@
 import KryptonClient from '../src/KryptonClient';
-import { UserNotFoundError} from '../src/ErrorTypes';
 
 const krypton = new KryptonClient("http://localhost:5000");
 
