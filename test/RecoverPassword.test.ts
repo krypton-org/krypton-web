@@ -18,7 +18,7 @@ beforeAll(async (done) => {
 
 test('Recover password', async (done) => {
     try {
-        expect(await krypton.recoverPassword(user.email)).toBeTruthy();
+        expect(krypton.recoverPassword(user.email)).resolves.toBeTruthy();
     } catch (err) {
         done(err);
     }

@@ -1,4 +1,4 @@
 module.exports = {
-    refreshTokenExpiryTime: 50000,
-    authTokenExpiryTime: 30000
+    refreshTokenExpiryTime: 15000,
+    authTokenExpiryTime: 8000
 }

@@ -21,7 +21,7 @@ test('Change password', async (done) => {
     expect(await krypton.isLoggedIn()).toBeTruthy();
 
     await wait(1000);
-    expect(await krypton.changePassword(user.password, newPassword)).toBeTruthy();
+    expect(krypton.changePassword(user.password, newPassword)).resolves.toBeTruthy();
     expect(krypton.login(user.email, user.password)).rejects.toBeTruthy();
     expect(krypton.login(user.email, newPassword)).resolves.toBeTruthy();
     done();

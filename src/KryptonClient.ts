@@ -24,14 +24,16 @@ interface KryptonClientState {
     user: any;
 }
 
-const REFRESH_DELTA_TIME = 2 *60 *1000; // two minutes
+const DEFAULT_MIN_TIME_TO_LIVE = 30 * 1000; // 30 seconds
 
 export default class KryptonClient {
     private endpoint: string;
     private state: KryptonClientState;
+    private minTimeToLive: number;
 
-    constructor(endpoint: string) {
+    constructor(endpoint: string, minTimeToLive: number = DEFAULT_MIN_TIME_TO_LIVE) {
         this.endpoint = endpoint;
+        this.minTimeToLive = minTimeToLive;
         this.state = {
             user: {}, expiryDate: new Date(0), token: ''
         };
@@ -41,7 +43,7 @@ export default class KryptonClient {
 
     public getToken = async (): Promise<string> => {
         const now = new Date();
-        if (this.state.token && this.state.expiryDate && this.state.expiryDate.getTime() < now.getTime() + REFRESH_DELTA_TIME) {
+        if (this.state.token && this.state.expiryDate && this.state.expiryDate.getTime() < now.getTime() + this.minTimeToLive) {
             await this.refreshToken();
         }
         return this.state.token;
@@ -54,7 +56,7 @@ export default class KryptonClient {
     }
 
     public refreshToken = async (): Promise<void> => {
-        await this.query(new RefreshQuery(), false, true);
+        await this.query(new RefreshQuery(), false);
     }
 
     public isLoggedIn = async (): Promise<boolean> => {
@@ -72,7 +74,7 @@ export default class KryptonClient {
     }
 
     public register = async (email: string, password: string, fields?: any): Promise<void> => {
-        let data: { register: boolean } = await this.query(new RegisterQuery({ fields: { email, password, ...fields } }), false);
+        await this.query(new RegisterQuery({ fields: { email, password, ...fields } }), false);
     }
 
     public login = async (email: string, password: string): Promise<any> => {
@@ -92,7 +94,7 @@ export default class KryptonClient {
     public delete = async (password: string): Promise<void> => {
         await this.query(new DeleteQuery({ password }), true);
         this.setState({
-            user:{}, 
+            user: {},
             expiryDate: new Date(0),
             token: ''
         });
@@ -109,11 +111,12 @@ export default class KryptonClient {
 
     public changePassword = async (actualPassword: string, newPassword: string,): Promise<void> => {
         await this.query(new UpdateQuery(
-            { fields: { 
-                password: newPassword,
-                previousPassword: actualPassword
-            } 
-        }), true);
+            {
+                fields: {
+                    password: newPassword,
+                    previousPassword: actualPassword
+                }
+            }), true);
     }
 
     public sendVerificationEmail = async () => {
@@ -155,13 +158,13 @@ export default class KryptonClient {
         return data.publicKey;
     }
 
-    private query = async (q: Query, isAuthTokenRequired: boolean, isRefreshed = false): Promise<any> => {
+    private query = async (q: Query, isAuthTokenRequired: boolean): Promise<any> => {
         const headers: any = {
             'Content-Type': 'application/json',
         };
 
         if (isAuthTokenRequired) {
-            headers['Authorization'] = this.getAuthorizationHeader();
+            headers['Authorization'] = await this.getAuthorizationHeader();
         }
 
         const res = await fetch(this.endpoint, {
@@ -174,19 +177,18 @@ export default class KryptonClient {
         if (res.errors) {
             const errorType = res.errors[0].type;
             const message = res.errors[0].message;
-            if (errorType === 'UnauthorizedError' && !isRefreshed) {
-                await this.refreshToken();
-                return await this.query(q, isAuthTokenRequired, true)
+            if (!(<any>KryptonErrors)[errorType]) {
+                throw new Error(message);
             } else {
-                if (!(<any>KryptonErrors)[errorType]) {
-                    throw new Error(message);
-                } else {
-                    throw new (<any>KryptonErrors)[errorType](message);
-                }
+                throw new (<any>KryptonErrors)[errorType](message);
             }
         }
 
-        const data = res.data;
+        this.updateAuthData(res.data);
+        return res.data;
+    }
+
+    private updateAuthData = (data: any): void => {
         if (data.login) {
             this.setState({
                 token: data.login.token,
@@ -206,8 +208,6 @@ export default class KryptonClient {
                 user: this.decodeToken(data.updateMe.token)
             });
         }
-
-        return data;
     }
 
     private decodeToken = (token: string): any => JSON.parse(window.atob(token.split('.')[1]));

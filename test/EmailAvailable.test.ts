@@ -8,14 +8,9 @@ const user = {
 }
 
 test('Email available', async (done) => {
-    try {
-        expect(await krypton.isEmailAvailable(user.email)).toBeTruthy();
-        const isRegistered = await krypton.register(user.email, user.password);
-        expect(isRegistered).toBe(true);
-        expect(await krypton.isEmailAvailable(user.email)).toBeFalsy();
-    } catch (err) {
-        done(err);
-    }
+    expect(await krypton.isEmailAvailable(user.email)).toBeTruthy();
+    await krypton.register(user.email, user.password);
+    expect(await krypton.isEmailAvailable(user.email)).toBeFalsy();
     done();
 });
 

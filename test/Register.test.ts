@@ -8,12 +8,7 @@ const user = {
 }
 
 test('Register a user', async (done) => {
-    try {
-        const isRegistered = await krypton.register(user.email, user.password);
-        expect(isRegistered).toBe(true);
-    } catch (err) {
-        done(err);
-    }
+    expect(krypton.register(user.email, user.password)).resolves.toBeTruthy();
     done();
 });
 
