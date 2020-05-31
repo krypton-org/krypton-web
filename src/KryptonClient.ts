@@ -13,7 +13,8 @@ import {
     UserManyQuery,
     UserCountQuery,
     UserPaginationQuery,
-    PublicKeyQuery
+    PublicKeyQuery,
+    LogoutQuery
 } from './Queries'
 
 import * as KryptonErrors from './ErrorTypes'
@@ -83,7 +84,12 @@ export default class KryptonClient {
     }
 
     public logout = async (): Promise<void> => {
-        //await removing session in the back-end
+        await this.query(new LogoutQuery(), true);
+        this.setState({
+            user: {},
+            expiryDate: new Date(0),
+            token: ''
+        });
     }
 
     public update = async (fields: any): Promise<any> => {
@@ -119,22 +125,21 @@ export default class KryptonClient {
             }), true);
     }
 
-    public sendVerificationEmail = async () => {
+    public sendVerificationEmail = async (): Promise<void> => {
         let data: { sendVerificationEmail: boolean } = await this.query(new SendVerificationEmailQuery(), true);
-        return data.sendVerificationEmail;
     }
 
-    public fetchUserOne = async (filter: any, requestedFields: string[]) => {
+    public fetchUserOne = async (filter: any, requestedFields: string[]): Promise<any> => {
         let data: { userOne: any } = await this.query(new UserOneQuery({ filter }, requestedFields), true);
         return data.userOne;
     }
 
-    public fetchUserByIds = async (ids: string[], requestedFields: string[]) => {
+    public fetchUserByIds = async (ids: string[], requestedFields: string[]): Promise<Array<any>> => {
         let data: { userByIds: any } = await this.query(new UserByIdsQuery({ ids }, requestedFields), true);
         return data.userByIds;
     }
 
-    public fetchUserMany = async (filter: any, requestedFields: string[], limit?: number) => {
+    public fetchUserMany = async (filter: any, requestedFields: string[], limit?: number): Promise<Array<any>> => {
         let data: { userMany: any } = await this.query(new UserManyQuery({ filter, limit }, requestedFields), true);
         return data.userMany;
     }
@@ -148,7 +153,7 @@ export default class KryptonClient {
         return data.userCount;
     }
 
-    public fetchUserWithPagination = async (filter: any, requestedFields: string[], page: number, perPage: number) => {
+    public fetchUserWithPagination = async (filter: any, requestedFields: string[], page: number, perPage: number): Promise<any> => {
         let data: { userPagination: any } = await this.query(new UserPaginationQuery({ filter, page, perPage }, requestedFields), true);
         return data.userPagination;
     }

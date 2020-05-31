@@ -23,17 +23,25 @@ export abstract class QueryWithRequestedFields extends Query {
     protected getRequestedFieldsFragment = (): string => {
         return `
             fragment requestedFields on UserPublicInfo {
-                `+this.requestedFields.join(" ")+`
+                `+ this.requestedFields.join(" ") + `
             }
         `
     }
 
     public toJsonString = (): string => {
-        return JSON.stringify({ 
-            query: this.getQuery() + ' ' + this.getRequestedFieldsFragment(), 
-            variables: this.variables 
+        return JSON.stringify({
+            query: this.getQuery() + ' ' + this.getRequestedFieldsFragment(),
+            variables: this.variables
         });
     };
+}
+
+export class LogoutQuery extends Query {
+    protected getQuery = (): string => `
+        mutation{
+            logout
+        }
+    `;
 }
 
 export class RefreshQuery extends Query {
@@ -147,7 +155,7 @@ export class UserManyQuery extends QueryWithRequestedFields {
 
 export class UserCountQuery extends Query {
     protected getQuery = (): string => {
-        if(this.variables.filter){
+        if (this.variables.filter) {
             return `
                 query userCount($filter: FilterUserPublicInfoInput!) {
                     userCount(filter: $filter)
@@ -176,7 +184,7 @@ export class UserPaginationQuery extends QueryWithRequestedFields {
         return `
             fragment requestedFields on UserPublicInfoPagination {
                 items{
-                    `+this.requestedFields.join(" ")+`
+                    `+ this.requestedFields.join(" ") + `
                 }
                 pageInfo{
                     currentPage
