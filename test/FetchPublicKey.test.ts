@@ -1,6 +1,7 @@
-import KryptonClient from '../src/KryptonClient';
+import Krypton from '../src/Krypton';
 
-const krypton = new KryptonClient("http://localhost:5000");
+Krypton.initialize({ endpoint: 'http://localhost:5000' });
+const krypton = Krypton.getInstance();
 
 test('Fetch public key', async (done) => {
     try {

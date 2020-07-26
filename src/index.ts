@@ -1,3 +1,3 @@
-import KryptonClient from './KryptonClient';
+import Krypton from './Krypton';
 
-export = KryptonClient;
+export = Krypton;

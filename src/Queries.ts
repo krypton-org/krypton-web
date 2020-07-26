@@ -21,17 +21,21 @@ export abstract class QueryWithRequestedFields extends Query {
     }
 
     protected getRequestedFieldsFragment = (): string => {
-        return `
+        return (
+            `
             fragment requestedFields on UserPublicInfo {
-                `+ this.requestedFields.join(" ") + `
+                ` +
+            this.requestedFields.join(' ') +
+            `
             }
         `
-    }
+        );
+    };
 
     public toJsonString = (): string => {
         return JSON.stringify({
             query: this.getQuery() + ' ' + this.getRequestedFieldsFragment(),
-            variables: this.variables
+            variables: this.variables,
         });
     };
 }
@@ -121,7 +125,6 @@ export class SendPasswordRecoveryQuery extends Query {
 }
 
 export class UserOneQuery extends QueryWithRequestedFields {
-
     protected getQuery = (): string => `
         query userOne($filter: FilterFindOneUserPublicInfoInput!) {
             userOne(filter: $filter){
@@ -132,7 +135,6 @@ export class UserOneQuery extends QueryWithRequestedFields {
 }
 
 export class UserByIdsQuery extends QueryWithRequestedFields {
-
     protected getQuery = (): string => `
         query userByIds($ids: [MongoID]!) {
             userByIds(_ids: $ids){
@@ -143,7 +145,6 @@ export class UserByIdsQuery extends QueryWithRequestedFields {
 }
 
 export class UserManyQuery extends QueryWithRequestedFields {
-
     protected getQuery = (): string => `
         query userMany($filter: FilterFindManyUserPublicInfoInput!, $limit: Int) {
             userMany(filter: $filter, limit: $limit){
@@ -160,15 +161,15 @@ export class UserCountQuery extends Query {
                 query userCount($filter: FilterUserPublicInfoInput!) {
                     userCount(filter: $filter)
                 }
-            `
+            `;
         } else {
             return `
                 query {
                     userCount
                 }
-            `
+            `;
         }
-    }
+    };
 }
 
 export class UserPaginationQuery extends QueryWithRequestedFields {
@@ -181,10 +182,13 @@ export class UserPaginationQuery extends QueryWithRequestedFields {
     `;
 
     protected getRequestedFieldsFragment = (): string => {
-        return `
+        return (
+            `
             fragment requestedFields on UserPublicInfoPagination {
                 items{
-                    `+ this.requestedFields.join(" ") + `
+                    ` +
+            this.requestedFields.join(' ') +
+            `
                 }
                 pageInfo{
                     currentPage
@@ -196,6 +200,6 @@ export class UserPaginationQuery extends QueryWithRequestedFields {
                 }
             }
         `
-    }
+        );
+    };
 }
-

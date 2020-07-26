@@ -1,11 +1,12 @@
-import KryptonClient from '../src/KryptonClient';
+import Krypton from '../src/Krypton';
 
-const krypton = new KryptonClient("http://localhost:5000");
+Krypton.initialize({ endpoint: 'http://localhost:5000' });
+const krypton = Krypton.getInstance();
 
 const user = {
-    email: "send.verification.email@example.com",
-    password: "ex@mplePassword123"
-}
+    email: 'send.verification.email@example.com',
+    password: 'ex@mplePassword123',
+};
 
 beforeAll(async (done) => {
     try {
@@ -14,12 +15,12 @@ beforeAll(async (done) => {
         done(err);
     }
     done();
-})
+});
 
 test('Send verification email', async (done) => {
     try {
         await krypton.login(user.email, user.password);
-        expect(await krypton.sendVerificationEmail()).toBeTruthy();
+        await krypton.sendVerificationEmail();
     } catch (err) {
         done(err);
     }
@@ -30,4 +31,4 @@ afterAll(async (done) => {
     await krypton.login(user.email, user.password);
     await krypton.delete(user.password);
     done();
-})
+});

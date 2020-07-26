@@ -1,11 +1,12 @@
-import KryptonClient from '../src/KryptonClient';
+import Krypton from '../src/Krypton';
 
-const krypton = new KryptonClient("http://localhost:5000");
+Krypton.initialize({ endpoint: 'http://localhost:5000' });
+const krypton = Krypton.getInstance();
 
 const user = {
-    email: "delete@example.com",
-    password: "ex@mplePassword123"
-}
+    email: 'delete@example.com',
+    password: 'ex@mplePassword123',
+};
 
 beforeAll(async (done) => {
     try {
@@ -14,10 +15,10 @@ beforeAll(async (done) => {
         done(err);
     }
     done();
-})
+});
 
 test('Delete user', async (done) => {
-    try{
+    try {
         await krypton.login(user.email, user.password);
         expect(await krypton.isLoggedIn()).toBeTruthy();
         await krypton.delete(user.password);

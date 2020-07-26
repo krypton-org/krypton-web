@@ -1,20 +1,24 @@
-import KryptonClient from '../src/KryptonClient';
+import Krypton from '../src/Krypton';
 
-const krypton = new KryptonClient("http://localhost:5000");
+Krypton.initialize({ endpoint: 'http://localhost:5000' });
+const krypton = Krypton.getInstance();
 
 const user = {
-    email: "update1@example.com",
-    password: "ex@mplePassword123"
-}
+    email: 'update1@example.com',
+    password: 'ex@mplePassword123',
+};
 
-const emailUpdate = "update2@example.com"
+const emailUpdate = 'update2@example.com';
 
-const wait = (time: number) => new Promise((resolve) => { setTimeout(resolve, time) });
+const wait = (time: number) =>
+    new Promise((resolve) => {
+        setTimeout(resolve, time);
+    });
 
 beforeAll(async (done) => {
     await krypton.register(user.email, user.password);
     done();
-})
+});
 
 it('Update success', async (done) => {
     const loggedUser: any = await krypton.login(user.email, user.password);
@@ -32,10 +36,10 @@ afterAll(async (done) => {
     try {
         await krypton.login(user.email, user.password);
         await krypton.delete(user.password);
-    } catch (err) { }
+    } catch (err) {}
     try {
         await krypton.login(emailUpdate, user.password);
         await krypton.delete(user.password);
-    } catch (err) { }
+    } catch (err) {}
     done();
-})
+});

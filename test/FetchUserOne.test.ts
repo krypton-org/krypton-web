@@ -1,27 +1,28 @@
-import KryptonClient from '../src/KryptonClient';
+import Krypton from '../src/Krypton';
 
-const krypton = new KryptonClient("http://localhost:5000");
+Krypton.initialize({ endpoint: 'http://localhost:5000' });
+const krypton = Krypton.getInstance();
 
-const password = "@notherP@sswo0rd";
+const password = '@notherP@sswo0rd';
 
 beforeAll(async (done) => {
     for (let i = 0; i < 5; i++) {
         try {
-            await krypton.register("fetchoneuser.pass"+ i +"@example.com", password);
+            await krypton.register('fetchoneuser.pass' + i + '@example.com', password);
         } catch (err) {
             done(err);
-        }  
+        }
     }
     done();
-})
+});
 
 test('Fetch one user', async (done) => {
-    try{
-        let data = await krypton.fetchUserOne({verified: false}, ["_id", "verified"]);
+    try {
+        let data = await krypton.fetchUserOne({ email_verified: false }, ['_id', 'email_verified']);
         expect(data._id).not.toBeUndefined();
-        expect(data.verified).toBeFalsy();
+        expect(data.email_verified).toBeFalsy();
 
-        data = await krypton.fetchUserOne({verified: true}, ["_id", "verified"]);
+        data = await krypton.fetchUserOne({ email_verified: true }, ['_id', 'email_verified']);
         expect(data).toBeNull();
     } catch (err) {
         done(err);
@@ -32,11 +33,11 @@ test('Fetch one user', async (done) => {
 afterAll(async (done) => {
     for (let i = 0; i < 5; i++) {
         try {
-            await krypton.login("fetchoneuser.pass"+ i +"@example.com", password);
+            await krypton.login('fetchoneuser.pass' + i + '@example.com', password);
             await krypton.delete(password);
         } catch (err) {
             done(err);
-        }  
+        }
     }
     done();
-})
+});

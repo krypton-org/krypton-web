@@ -1,11 +1,12 @@
-import KryptonClient from '../src/KryptonClient';
+import Krypton from '../src/Krypton';
 
-const krypton = new KryptonClient("http://localhost:5000");
+Krypton.initialize({ endpoint: 'http://localhost:5000' });
+const krypton = Krypton.getInstance();
 
 const user = {
-    email: "recover.password@example.com",
-    password: "ex@mplePassword123"
-}
+    email: 'recover.password@example.com',
+    password: 'ex@mplePassword123',
+};
 
 beforeAll(async (done) => {
     try {
@@ -14,7 +15,7 @@ beforeAll(async (done) => {
         done(err);
     }
     done();
-})
+});
 
 test('Recover password', async (done) => {
     try {
@@ -29,4 +30,4 @@ afterAll(async (done) => {
     await krypton.login(user.email, user.password);
     await krypton.delete(user.password);
     done();
-})
+});
